@@ -31,10 +31,10 @@ typedef enum {
     DSHOT_CMD_SAVE_SETTINGS,
     DSHOT_CMD_SPIN_DIRECTION_NORMAL = 20,
     DSHOT_CMD_SPIN_DIRECTION_REVERSED = 21,
-    DSHOT_CMD_LED0_ON, // BLHeli32 only
-    DSHOT_CMD_LED1_ON, // BLHeli32 only
-    DSHOT_CMD_LED2_ON, // BLHeli32 only
-    DSHOT_CMD_LED3_ON, // BLHeli32 only
+    DSHOT_CMD_LED0_ON,  // BLHeli32 only
+    DSHOT_CMD_LED1_ON,  // BLHeli32 only
+    DSHOT_CMD_LED2_ON,  // BLHeli32 only
+    DSHOT_CMD_LED3_ON,  // BLHeli32 only
     DSHOT_CMD_LED0_OFF, // BLHeli32 only
     DSHOT_CMD_LED1_OFF, // BLHeli32 only
     DSHOT_CMD_LED2_OFF, // BLHeli32 only
@@ -42,7 +42,6 @@ typedef enum {
     DSHOT_CMD_MAX = 47
 } dshotCommands_e;
 
-// 支持标准型PWM,Oneshot系列,Dshot系列协议
 typedef enum {
     PWM_TYPE_NONE = 0,
 
