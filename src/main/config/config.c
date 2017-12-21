@@ -55,9 +55,6 @@ static void resetConfigs(void)
     motor_Config()->mot_stop_thres = 7;     // (1 - 100)
 }
 
-/**
- * 确保是EEPROM中存放有效数据
- */
 void ensureEEPROMContainsValidData(void)
 {
     if (isEEPROMContentValid()) {
