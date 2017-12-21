@@ -1,8 +1,9 @@
 #include "include.h"
 
-// 重定义fputc函数
 int fputc(int ch, FILE *f)
 {
+    UNUSED(f);
+    
     // let DMA catch up a bit when using set or dump, we're too fast.
     serialWrite(ch);
     return ch;
@@ -10,7 +11,6 @@ int fputc(int ch, FILE *f)
 
 static serialPort_t serialPort;
 
-// 启动串口发送DMA 将串口发送缓冲区的内容使用DMA发送
 static void serialStartTxDMA(void)
 {
     serialPort_t *s = &serialPort;
@@ -27,7 +27,6 @@ static void serialStartTxDMA(void)
     DMA_Cmd(USARTx_TX_DMA_CHANNEL, ENABLE);
 }
 
-// 将要发送的内容写入串口发送缓冲区
 void serialWrite(int ch)
 {
     serialPort_t *s = &serialPort;
@@ -39,14 +38,11 @@ void serialWrite(int ch)
         serialStartTxDMA();
 }
 
-// 判断是否有收到有效的数据
 bool serialAvailable(void)
 {
     return (USARTx_RX_DMA_CHANNEL->CNDTR != serialPort.rxPos);
 }
 
-// only call after a affirmative return from serialAvailable()
-// 从串口缓冲区中读取数据
 int serialRead(void)
 {
     serialPort_t *s = &serialPort;
@@ -60,7 +56,6 @@ int serialRead(void)
     return ch;
 }
 
-// 串口打印字符串
 void serialPrint(const char *str)
 {
     while (*str) {
@@ -68,7 +63,6 @@ void serialPrint(const char *str)
     }
 }
 
-// 初始化串口
 void serialInit(void)
 {
     serialPort_t *s = &serialPort;
@@ -169,13 +163,12 @@ void serialInit(void)
     USART_Cmd(USARTx, ENABLE);
 }
 
-// USART tx DMA IRQ  发送DMA完成中断
 void DMA1_Channel2_3_IRQHandler(void)
 {
     DMA_ClearFlag(USARTx_TX_DMA_FLAG_TC);
     DMA_Cmd(USARTx_TX_DMA_CHANNEL, DISABLE);
 
-    if (serialPort.txHead != serialPort.txTail) {// 判断是否有数据要发送出去
+    if (serialPort.txHead != serialPort.txTail) {
         serialStartTxDMA();
     }
 }

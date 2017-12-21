@@ -2,19 +2,19 @@
 
 // from https://www.rcgroups.com/forums/showatt.php?attachmentid=8524039&d=1450424877
 /*
-		KISS ESC TELEMETRY PROTOCOL
-		---------------------------
-		One transmission will have 10 times 8-bit bytes sent with 115200 baud and 3.6V.
-		Byte 0: Temperature
-		Byte 1: Voltage high byte
-		Byte 2: Voltage low byte
-		Byte 3: Current high byte
-		Byte 4: Current low byte
-		Byte 5: Consumption high byte
-		Byte 6: Consumption low byte
-		Byte 7: Rpm high byte
-		Byte 8: Rpm low byte
-		Byte 9: 8-bit CRC
+        KISS ESC TELEMETRY PROTOCOL
+        ---------------------------
+        One transmission will have 10 times 8-bit bytes sent with 115200 baud and 3.6V.
+        Byte 0: Temperature
+        Byte 1: Voltage high byte
+        Byte 2: Voltage low byte
+        Byte 3: Current high byte
+        Byte 4: Current low byte
+        Byte 5: Consumption high byte
+        Byte 6: Consumption low byte
+        Byte 7: Rpm high byte
+        Byte 8: Rpm low byte
+        Byte 9: 8-bit CRC
 */
 
 typedef struct {
@@ -74,7 +74,6 @@ static void motor_telemetry_package(escSensorData_t *escSensorData)
     // crc
     telemetryBuffer[9] = calculateCrc8(telemetryBuffer, 9);
 
-    // 发送数据
     for(uint8_t i = 0; i < TELEMETRY_FRAME_SIZE; i++) {
         serialWrite(telemetryBuffer[i]);
     }

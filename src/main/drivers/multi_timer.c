@@ -1,18 +1,9 @@
 #include "include.h"
 
-// timer handle list head.
 static struct Timer* head_handle = NULL;
 
-// Timer ticks
 static volatile uint32_t _timer_ticks = 0;
 
-/**
-  * @brief  Initializes the timer struct handle.
-  * @param  handle: the timer handle strcut.
-  * @param  timeout_cb: timeout callback.
-  * @param  repeat: repeat interval time.
-  * @retval None
-  */
 void timer_init(struct Timer* handle, void(*timeout_cb)(), uint32_t timeout, uint32_t repeat)
 {
     // memset(handle, sizeof(struct Timer), 0);
@@ -21,16 +12,11 @@ void timer_init(struct Timer* handle, void(*timeout_cb)(), uint32_t timeout, uin
     handle->repeat = repeat;
 }
 
-/**
-  * @brief  Start the timer work, add the handle into work list.
-  * @param  btn: target handle strcut.
-  * @retval 0: succeed. -1: already exist.
-  */
 int timer_start(struct Timer* handle)
 {
     struct Timer* target = head_handle;
     while(target) {
-        if(target == handle) {// already exist.
+        if(target == handle) {
             return -1;
         }
         target = target->next;
@@ -41,11 +27,6 @@ int timer_start(struct Timer* handle)
     return 0;
 }
 
-/**
-  * @brief  Stop the timer work, remove the handle off work list.
-  * @param  handle: target handle strcut.
-  * @retval None
-  */
 void timer_stop(struct Timer* handle)
 {
     struct Timer** curr;
@@ -60,11 +41,6 @@ void timer_stop(struct Timer* handle)
     }
 }
 
-/**
-  * @brief  main loop.
-  * @param  None.
-  * @retval None
-  */
 void timer_loop(void)
 {
     struct Timer* target;
@@ -81,11 +57,6 @@ void timer_loop(void)
     }
 }
 
-/**
-  * @brief  background ticks, timer repeat invoking interval 1ms.
-  * @param  None.
-  * @retval None.
-  */
 void timer_ticks(void)
 {
     _timer_ticks++;

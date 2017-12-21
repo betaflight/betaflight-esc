@@ -89,7 +89,7 @@ VPATH           := $(SRC_DIR):$(STARTUP_DIR)/startup:$(ROOT)/make:$(ROOT)/make/m
 
 CSOURCES        := $(shell find $(SRC_DIR) -name '*.c')
 
-LD_FLAGS         :=
+LD_FLAGS        :=
 
 #
 # Default Tool options - can be overridden in {mcu}.mk files.
@@ -107,9 +107,6 @@ OPTIMISE_SIZE         := -Os
 
 LTO_FLAGS             := $(OPTIMISATION_BASE) $(OPTIMISE_SPEED)
 endif
-
-VPATH 			:= $(VPATH):$(ROOT)/make/mcu
-VPATH 			:= $(VPATH):$(ROOT)/make
 
 # start specific includes
 include $(ROOT)/make/mcu/$(TARGET_MCU).mk

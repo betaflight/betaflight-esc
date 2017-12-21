@@ -1,6 +1,5 @@
 #pragma once
 
-// ADC分辨率
 #define MOTOR_ADC_RESOLUTION  12
 
 struct motor_adc_sample

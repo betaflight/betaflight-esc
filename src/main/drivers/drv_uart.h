@@ -31,8 +31,8 @@
 #define USARTx_RX_DMA_FLAG_TC            DMA1_FLAG_TC3
 #define USARTx_RX_DMA_FLAG_GL            DMA1_FLAG_GL3
 
-#define SERIAL_TX_BUFSIZE	256
-#define SERIAL_RX_BUFSIZE	256
+#define SERIAL_TX_BUFSIZE   256
+#define SERIAL_RX_BUFSIZE   256
 
 typedef struct {
     volatile unsigned char txBuf[SERIAL_TX_BUFSIZE];

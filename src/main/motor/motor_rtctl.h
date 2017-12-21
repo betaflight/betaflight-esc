@@ -2,13 +2,9 @@
 
 typedef struct motor_rtctl_Config_s {
     // Timing advance settings
-    // 最小的换向提前角
     uint16_t mot_tim_adv_min;// the minimum commutation advance angle, in electrical rotor position degrees.
-    // 最大的换向提前角
     uint16_t mot_tim_adv_max;// the maximum commutation advance angle, in electrical rotor position degrees.
-    // 当换相时间小于该值时,以该值进行换相
     uint16_t mot_tim_cp_max;// when the current commutation period is shorter than this value, the maximum advance angle will be used. The units are microseconds.
-    // 当换相时间大于该值时,以该值进行换相
     uint16_t mot_tim_cp_min;// when the current commutation period is longer than this value, the minimum advance angle will be used. The units are microseconds.
 
     // Most important parameters
@@ -22,38 +18,35 @@ typedef struct motor_rtctl_Config_s {
     uint16_t mot_spup_blnk_pm;// the duration of the extended blanking time during spin-up in permill(i.e. one-thousands; 10 permill = 1%) of the current commutation period.
 } motor_rtctl_Config_t;
 
-/**
- * High-level motor control state.表示电机控制状态量
- */
 enum motor_rtctl_state
 {
     /**
-     * Unpowered.未通电
-     * The motor can be rotated by an external force.电机可以自由旋转
+     * Unpowered.
+     * The motor can be rotated by an external force.
      * Next state: starting.
      */
-    MOTOR_RTCTL_STATE_IDLE,// 空闲中
+    MOTOR_RTCTL_STATE_IDLE,
 
     /**
-     * Motor is attempting to start.电机尝试启动
+     * Motor is attempting to start.
      * Next state: running on success, idle on failure.
      */
-    MOTOR_RTCTL_STATE_STARTING,// 开始启动
+    MOTOR_RTCTL_STATE_STARTING,
 
     /**
-     * Motor is running in normal mode.电机正常转动中
+     * Motor is running in normal mode.
      * Next state: idle.
      */
-    MOTOR_RTCTL_STATE_RUNNING// 转动正常运行中
+    MOTOR_RTCTL_STATE_RUNNING
 };
 
 /**
- * 初始化硬件与控制逻辑 Initialize the hardware and control logic
+ *  Initialize the hardware and control logic
  */
 void motor_rtctl_init(void);
 
 /**
- * Start the motor.启动电机
+ * Start the motor.
  * @param [in] initial_duty_cycle       Initial PWM duty cycle, (0; 1]
  * @param [in] target_duty_cycle        PWM duty cycle that will be applied once the motor has started, (0; 1]
  * @param [in] spinup_ramp_duration     Duration of the duty cycle ramp in seconds
@@ -63,7 +56,7 @@ void motor_rtctl_init(void);
 void motor_rtctl_start(float initial_duty_cycle, float target_duty_cycle, float spinup_ramp_duration, bool reverse, unsigned num_prior_attempts);
 
 /**
- * Engage freewheeling.紧急停车
+ * Engage freewheeling.
  */
 void motor_rtctl_stop(void);
 
@@ -85,7 +78,7 @@ enum motor_rtctl_state motor_rtctl_get_state(void);
 void motor_rtctl_beep(int frequency, int duration_msec);
 
 /**
- * Returns the commutation period if running, 0 if not.获取换相时间
+ * Returns the commutation period if running, 0 if not.
  */
 uint32_t motor_rtctl_get_comm_period_hnsec(void);
 

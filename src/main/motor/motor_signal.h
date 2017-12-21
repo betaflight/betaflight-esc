@@ -57,7 +57,6 @@ typedef enum {
     PWM_TYPE_DSHOT1200
 } motorPwmProtocolTypes_e;
 
-// 定时器时钟
 #define PWM_TIMER_1MHZ        MHZ_TO_HZ(1)
 
 #define MOTOR_DSHOT1200_HZ    MHZ_TO_HZ(24)
@@ -65,12 +64,10 @@ typedef enum {
 #define MOTOR_DSHOT300_HZ     MHZ_TO_HZ(6)
 #define MOTOR_DSHOT150_HZ     MHZ_TO_HZ(3)
 
-// 位长度
 #define MOTOR_BIT_0           7
 #define MOTOR_BIT_1           14
 #define MOTOR_BITLENGTH       19
 
-// DMA缓冲区大小
 #define DSHOT_DMA_BUFFER_SIZE   18 /* resolution + frame reset (2us) */
 
 void motor_signal_init(void);

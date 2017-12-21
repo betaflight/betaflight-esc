@@ -1,24 +1,15 @@
 #include "include.h"
 
-#define BEMF_A_CMP_IN COMP_InvertingInput_IO // PA0
-#define BEMF_B_CMP_IN COMP_InvertingInput_DAC1 // PA4
-#define BEMF_C_CMP_IN COMP_InvertingInput_DAC2 // PA5
+#define BEMF_A_CMP_IN COMP_InvertingInput_IO    // PA0
+#define BEMF_B_CMP_IN COMP_InvertingInput_DAC1  // PA4
+#define BEMF_C_CMP_IN COMP_InvertingInput_DAC2  // PA5
 
-// 比较器句柄
 static COMP_InitTypeDef COMP_InitStructure;
 
-// 获取比较器的输出结果
-// 1.当"+"输入端(虚拟中性点PA1)电压高于"-"输入端(相电压)时, 电压比较器输出为高电平
-// 2.当"+"输入端(虚拟中性点PA1)电压低于"-"输入端(相电压)时, 电压比较器输出为低电平
-// 当A或B或C相电压大于中立点电压,则过零,电压比较器输出低电平
-// 当A或B或C相电压小于中立点电压,则过零,电压比较器输出高电平
 void ADC1_COMP_IRQHandler(void)
 {
     if(EXTI_GetITStatus(EXTI_Line21) != RESET) {
-        /* Clear EXTI21 pending bit */
         EXTI_ClearITPendingBit(EXTI_Line21);
-
-        // 回调比较器函数
         motor_comparator_zc_callback(COMP_GetOutputLevel(COMP_Selection_COMP1) == COMP_OutputLevel_High);
     }
 }
@@ -44,11 +35,11 @@ void motor_comparator_init(void)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
 
     COMP_StructInit(&COMP_InitStructure);
-    COMP_InitStructure.COMP_InvertingInput = BEMF_B_CMP_IN;// 选择连接到比较器1的反相输入的信号源
-    COMP_InitStructure.COMP_Output = COMP_Output_None;// 选择比较器1的输出方向
-    COMP_InitStructure.COMP_Mode = COMP_Mode_HighSpeed;// 比较器1的工作模式控制位,允许调整速率和损耗
-    COMP_InitStructure.COMP_Hysteresis = COMP_Hysteresis_No;// 用于控制比较器1的迟滞程度
-    COMP_InitStructure.COMP_OutputPol = COMP_OutputPol_NonInverted;// 用于控制比较器1输出极性
+    COMP_InitStructure.COMP_InvertingInput = BEMF_B_CMP_IN;
+    COMP_InitStructure.COMP_Output = COMP_Output_None;
+    COMP_InitStructure.COMP_Mode = COMP_Mode_HighSpeed;
+    COMP_InitStructure.COMP_Hysteresis = COMP_Hysteresis_No;
+    COMP_InitStructure.COMP_OutputPol = COMP_OutputPol_NonInverted;
     COMP_Init(COMP_Selection_COMP1, &COMP_InitStructure);
 
     /* Enable COMP1 */
@@ -67,7 +58,6 @@ void motor_comparator_init(void)
     nvicEnableVector(ADC1_COMP_IRQn, 0);
 }
 
-// 设置比较器的输入端
 void motor_comparator_set_input_source(uint_fast8_t phase)
 {
     switch(phase) {
@@ -92,7 +82,6 @@ void motor_comparator_set_input_source(uint_fast8_t phase)
 
 void motor_comparator_enable_from_isr(void)
 {
-    /* Clear EXTI21 line */
     EXTI_ClearITPendingBit(EXTI_Line21);
     NVIC_EnableIRQ(ADC1_COMP_IRQn);
 }

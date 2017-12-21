@@ -9,19 +9,18 @@
 typedef struct master_s {
     uint8_t version;
     uint16_t size;
-    uint8_t magic_be;                       // magic number, should be 0xBE
-
-    /* ********************* 开始 ***************************************/
+    
+    // magic number, should be 0xBE
+    uint8_t magic_be;                       
+    
     rpmctl_Config_t rpmctl_Config;
     motor_pwm_Config_t motor_pwm_Config;
     motor_signal_Config_t motor_signal_Config;
     motor_rtctl_Config_t motor_rtctl_Config;
     motor_Config_t motor_Config;
-    /* ********************* 结束 ***************************************/
 
     // magic number, should be 0xEF
     uint8_t magic_ef;
-    // XOR checksum
     uint8_t chk;
 } master_t;
 

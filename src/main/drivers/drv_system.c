@@ -19,7 +19,6 @@ void SysTick_Handler(void)
 
 void system_init(void)
 {
-    // Systick滴答定时器
     SysTick_Config(SystemCoreClock / 1000);
 }
 

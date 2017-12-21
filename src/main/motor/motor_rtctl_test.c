@@ -1,19 +1,14 @@
 #include "include.h"
 
-static const int INITIAL_DELAY_MS = 300;
-static const int SAMPLE_DELAY_MS  = 10;
+//static const int INITIAL_DELAY_MS = 300;
+//static const int SAMPLE_DELAY_MS  = 10;
 
 static const int ANALOG_TOLERANCE_PERCENT = 5;
 
-/**
- * 测试单相
- */
 static int test_one_phase(int phase, bool level)
 {
-    // 参数有效性判断
     assert_param(phase >= 0 && phase < MOTOR_NUM_PHASES);
 
-    // 三相浮空
     enum motor_pwm_phase_manip manip_cmd[MOTOR_NUM_PHASES] = {
         MOTOR_PWM_MANIP_FLOATING,
         MOTOR_PWM_MANIP_FLOATING,
@@ -22,9 +17,7 @@ static int test_one_phase(int phase, bool level)
 
     manip_cmd[phase] = level ? MOTOR_PWM_MANIP_HIGH : MOTOR_PWM_MANIP_LOW;
     motor_pwm_manip(manip_cmd);
-    // 延迟一段时间
-    // delayMs(SAMPLE_DELAY_MS);
-    // 获取电压
+
     const int sample = motor_adc_get_last_sample().phase_values[phase];
 
     manip_cmd[phase] = MOTOR_PWM_MANIP_FLOATING;
@@ -37,9 +30,6 @@ static int compare_samples(const void* p1, const void* p2)
     return (*(const int*)p1 - *(const int*)p2);
 }
 
-/**
- * 测试传感器
- */
 static int test_sensors(void)
 {
     static const int ADC_MAX = (1U << MOTOR_ADC_RESOLUTION) - 1;
@@ -150,7 +140,7 @@ static int test_cross_phase_conductivity(void)
         manip_cmd[phase] = MOTOR_PWM_MANIP_HIGH;
 
         motor_pwm_set_freewheeling();
-        //    delayMs(SAMPLE_DELAY_MS);
+        //  delayMs(SAMPLE_DELAY_MS);
         motor_pwm_manip(manip_cmd);
         //  delayMs(SAMPLE_DELAY_MS);
         motor_pwm_set_freewheeling();
@@ -184,12 +174,8 @@ static int test_cross_phase_conductivity(void)
     return num_detects;
 }
 
-/**
- * 测试硬件
- */
 int motor_rtctl_test_hardware(void)
 {
-    // 当前状态应为空闲状态
     if (motor_rtctl_get_state() != MOTOR_RTCTL_STATE_IDLE) {
         return -1;
     }
@@ -199,7 +185,7 @@ int motor_rtctl_test_hardware(void)
 
     printf("Motor: Power stage test...\n");
     {
-        int res = test_power_stage();// 测试电机
+        int res = test_power_stage();
         if (res != 0) {
             return res;
         }
@@ -207,7 +193,7 @@ int motor_rtctl_test_hardware(void)
 
     printf("Motor: Cross phase test...\n");
     {
-        int res = test_cross_phase_conductivity();// 测试换相
+        int res = test_cross_phase_conductivity();
         if (res != 0) {
             return res;
         }
@@ -215,7 +201,7 @@ int motor_rtctl_test_hardware(void)
 
     printf("Motor: Sensors test...\n");
     {
-        int res = test_sensors();// 测试传感器
+        int res = test_sensors();
         if (res != 0) {
             return res;
         }
@@ -224,21 +210,16 @@ int motor_rtctl_test_hardware(void)
     return 0;
 }
 
-/**
- * 测试电机是否接入
- */
 int motor_rtctl_test_motor(void)
 {
-    // 当前状态应为空闲状态
     if (motor_rtctl_get_state() != MOTOR_RTCTL_STATE_IDLE) {
         return -1;
     }
 
-    // 计算ADC门槛电压值
     const int threshold = ((1 << MOTOR_ADC_RESOLUTION) * ANALOG_TOLERANCE_PERCENT) / 100;
-    // ADC采样结构体
+
     struct motor_adc_sample sample;
-    // 结果值
+
     int result = 0;
     enum motor_pwm_phase_manip manip_cmd[MOTOR_NUM_PHASES] = {
         MOTOR_PWM_MANIP_LOW,
@@ -246,7 +227,6 @@ int motor_rtctl_test_motor(void)
         MOTOR_PWM_MANIP_FLOATING
     };
 
-    // 电机惯性滑行,不受PWM电压控制
     motor_pwm_set_freewheeling();
     /*
      * Test with low level
@@ -264,11 +244,7 @@ int motor_rtctl_test_motor(void)
      * Test with high level
      */
     manip_cmd[0] = MOTOR_PWM_MANIP_HIGH;
-    // 人为外加PWM方波
     motor_pwm_manip(manip_cmd);
-    // 延迟一段时间
-    // delayMs(SAMPLE_DELAY_MS);
-    // ADC采样
     sample = motor_adc_get_last_sample();
 
     if (abs(sample.phase_values[0] - sample.phase_values[1]) > threshold) {
@@ -278,7 +254,6 @@ int motor_rtctl_test_motor(void)
         result++;
     }
 
-    // 电机惯性滑行,不受PWM电压控制
     motor_pwm_set_freewheeling();
     return result;
 }
