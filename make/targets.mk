@@ -26,4 +26,6 @@ else
 $(error Unknown target MCU specified.)
 endif
 
+CMSIS_DIR       := $(LIB_DIR)/$(TARGET_MCU)/Drivers/CMSIS
+
 TARGET_FLAGS  	:= $(TARGET_FLAGS) -D$(TARGET_MCU)

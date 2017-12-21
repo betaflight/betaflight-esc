@@ -15,7 +15,7 @@ SPEED_OPTIMISED_SRC := ""
 SIZE_OPTIMISED_SRC  := ""
 
 # check if target.mk supplied
-SRC                 := $(STARTUP_SRC) $(MCU_COMMON_SRC) $(TARGET_SRC) $(VARIANT_SRC) $(COMMON_SRC)
+SRC                 := $(STARTUP_DIR)/$(STARTUP_SRC) $(MCU_COMMON_SRC) $(TARGET_SRC) $(VARIANT_SRC) $(COMMON_SRC)
 
 #excludes
 SRC                 := $(filter-out ${MCU_EXCLUDES}, $(SRC))

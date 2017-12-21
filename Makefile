@@ -14,6 +14,7 @@
 
 # Things that the user might override on the commandline
 #
+PROJECTNAME  := BFESC
 
 # The target to build, see VALID_TARGETS below
 TARGET    ?= FISHDRONE_ESC
@@ -44,10 +45,11 @@ ROOT            := $(patsubst %/,%,$(dir $(lastword $(MAKEFILE_LIST))))
 SRC_DIR         := $(ROOT)/src/main
 OBJECT_DIR      := $(ROOT)/obj/main
 BIN_DIR         := $(ROOT)/obj
-CMSIS_DIR       := $(ROOT)/lib/main/CMSIS
+LIB_DIR         := $(ROOT)/lib/main
 INCLUDE_DIRS    := $(SRC_DIR) \
                    $(ROOT)/src/main/target
 LINKER_DIR      := $(ROOT)/src/link
+STARTUP_DIR     := $(ROOT)/src/startup
 
 ## V                 : Set verbosity level based on the V= parameter
 ##                     V=0 Low
@@ -83,7 +85,7 @@ FW_VER_PATCH := $(shell grep " FW_VERSION_PATCH" src/main/build/version.h | awk 
 FW_VER := $(FW_VER_MAJOR).$(FW_VER_MINOR).$(FW_VER_PATCH)
 
 # Search path for sources
-VPATH           := $(SRC_DIR):$(SRC_DIR)/startup
+VPATH           := $(SRC_DIR):$(STARTUP_DIR)/startup:$(ROOT)/make:$(ROOT)/make/mcu
 
 CSOURCES        := $(shell find $(SRC_DIR) -name '*.c')
 
@@ -186,7 +188,7 @@ CFLAGS     += $(ARCH_FLAGS) \
               -DUSE_STDPERIPH_DRIVER \
               -D$(TARGET) \
               $(TARGET_FLAGS) \
-              -D'__FORKNAME__="$(FORKNAME)"' \
+              -D'__PROJECTNAME__="$(PROJECTNAME)"' \
               -D'__TARGET__="$(TARGET)"' \
               -D'__REVISION__="$(REVISION)"' \
               -save-temps=obj \
@@ -227,13 +229,13 @@ CPPCHECK        = cppcheck $(CSOURCES) --enable=all --platform=unix64 \
 #
 # Things we will build
 #
-TARGET_BIN      = $(BIN_DIR)/$(FORKNAME)_$(FW_VER)_$(TARGET).bin
-TARGET_HEX      = $(BIN_DIR)/$(FORKNAME)_$(FW_VER)_$(TARGET).hex
-TARGET_ELF      = $(OBJECT_DIR)/$(FORKNAME)_$(TARGET).elf
-TARGET_LST      = $(OBJECT_DIR)/$(FORKNAME)_$(TARGET).lst
+TARGET_BIN      = $(BIN_DIR)/$(PROJECTNAME)_$(FW_VER)_$(TARGET).bin
+TARGET_HEX      = $(BIN_DIR)/$(PROJECTNAME)_$(FW_VER)_$(TARGET).hex
+TARGET_ELF      = $(OBJECT_DIR)/$(PROJECTNAME)_$(TARGET).elf
+TARGET_LST      = $(OBJECT_DIR)/$(PROJECTNAME)_$(TARGET).lst
 TARGET_OBJS     = $(addsuffix .o,$(addprefix $(OBJECT_DIR)/$(TARGET)/,$(basename $(SRC))))
 TARGET_DEPS     = $(addsuffix .d,$(addprefix $(OBJECT_DIR)/$(TARGET)/,$(basename $(SRC))))
-TARGET_MAP      = $(OBJECT_DIR)/$(FORKNAME)_$(TARGET).map
+TARGET_MAP      = $(OBJECT_DIR)/$(PROJECTNAME)_$(TARGET).map
 
 
 CLEAN_ARTIFACTS := $(TARGET_BIN)
@@ -351,7 +353,7 @@ version:
 ## help              : print this help message and exit
 help: 
 	$(V0) @echo ""
-	$(V0) @echo "Makefile for the $(FORKNAME) firmware"
+	$(V0) @echo "Makefile for the $(PROJECTNAME) firmware"
 	$(V0) @echo ""
 	$(V0) @echo "Usage:"
 	$(V0) @echo "        make [V=<verbosity>] [TARGET=<target>] [OPTIONS=\"<options>\"]"
