@@ -1,5 +1,11 @@
 #pragma once
 
+typedef enum {
+    PHASE_A = 0,
+    PHASE_B = 1,
+    PHASE_C = 2,
+} motorPhase_e;
+
 typedef struct motor_pwm_Config_s {
     uint16_t mot_pwm_hz;
     uint16_t mot_pwm_dt_ns;
@@ -7,9 +13,9 @@ typedef struct motor_pwm_Config_s {
 
 struct motor_pwm_commutation_step
 {
-    int_fast8_t positive;
-    int_fast8_t negative;
-    int_fast8_t floating;
+	motorPhase_e positive;
+	motorPhase_e negative;
+	motorPhase_e floating;
 };
 
 enum motor_pwm_phase_manip

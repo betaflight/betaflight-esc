@@ -110,22 +110,22 @@ void motor_pwm_init(void)
     motor_pwm_set_freewheeling();
 }
 
-static inline void phase_reset_i(uint_fast8_t phase)
+static inline void phase_reset_i(motorPhase_e phase)
 {
     switch(phase) {
-    case 0:
+    case PHASE_A:
         TIM_SelectOCxM(TIM1, TIM_Channel_3, TIM_OCMode_Inactive);
         TIM_CCxCmd(TIM1, TIM_Channel_3, TIM_CCx_Enable);
         TIM_CCxNCmd(TIM1, TIM_Channel_3, TIM_CCxN_Disable);
         break;
 
-    case 1:
+    case PHASE_B:
         TIM_SelectOCxM(TIM1, TIM_Channel_2, TIM_OCMode_Inactive);
         TIM_CCxCmd(TIM1, TIM_Channel_2, TIM_CCx_Enable);
         TIM_CCxNCmd(TIM1, TIM_Channel_2, TIM_CCxN_Disable);
         break;
 
-    case 2:
+    case PHASE_C:
         TIM_SelectOCxM(TIM1, TIM_Channel_1, TIM_OCMode_Inactive);
         TIM_CCxCmd(TIM1, TIM_Channel_1, TIM_CCx_Enable);
         TIM_CCxNCmd(TIM1, TIM_Channel_1, TIM_CCxN_Disable);
@@ -140,24 +140,24 @@ static inline void phase_reset_i(uint_fast8_t phase)
  * Assumes:
  *  - motor IRQs are disabled
  */
-static inline void phase_set_i(uint_fast8_t phase, uint_fast16_t pwm_val, bool isPWMInput)
+static inline void phase_set_i(motorPhase_e phase, uint_fast16_t pwm_val, bool isPWMInput)
 {
     switch(phase) {
-    case 0:
+    case PHASE_A:
         TIM_SetCompare3(TIM1, pwm_val);
         TIM_SelectOCxM(TIM1, TIM_Channel_3, isPWMInput ? TIM_OCMode_PWM1 : TIM_OCMode_Inactive);
         TIM_CCxCmd(TIM1, TIM_Channel_3, TIM_CCx_Enable);
         TIM_CCxNCmd(TIM1, TIM_Channel_3, TIM_CCxN_Enable);
         break;
 
-    case 1:
+    case PHASE_B:
         TIM_SetCompare2(TIM1, pwm_val);
         TIM_SelectOCxM(TIM1, TIM_Channel_2, isPWMInput ? TIM_OCMode_PWM1 : TIM_OCMode_Inactive);
         TIM_CCxCmd(TIM1, TIM_Channel_2, TIM_CCx_Enable);
         TIM_CCxNCmd(TIM1, TIM_Channel_2, TIM_CCxN_Enable);
         break;
 
-    case 2:
+    case PHASE_C:
         TIM_SetCompare1(TIM1, pwm_val);
         TIM_SelectOCxM(TIM1, TIM_Channel_1, isPWMInput ? TIM_OCMode_PWM1 : TIM_OCMode_Inactive);
         TIM_CCxCmd(TIM1, TIM_Channel_1, TIM_CCx_Enable);
