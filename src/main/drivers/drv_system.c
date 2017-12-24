@@ -1,14 +1,13 @@
 #include "include.h"
 
+#include "stm32f0xx_hal_cortex.h"
+
 static volatile uint32_t sysTickUptime = 0;
 
-void nvicEnableVector(IRQn_Type irq, uint8_t prio)
+void nvicEnableVector(IRQn_Type irq, uint8_t priority)
 {
-    NVIC_InitTypeDef NVIC_InitStructure;
-    NVIC_InitStructure.NVIC_IRQChannel = irq;
-    NVIC_InitStructure.NVIC_IRQChannelPriority = prio;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
+    HAL_NVIC_SetPriority(irq, priority ,0U);
+    HAL_NVIC_EnableIRQ(irq);
 }
 
 void SysTick_Handler(void)

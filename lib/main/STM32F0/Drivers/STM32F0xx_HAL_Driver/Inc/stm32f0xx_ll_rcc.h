@@ -1244,6 +1244,7 @@ __STATIC_INLINE uint32_t LL_RCC_GetAPB1Prescaler(void)
   */
 __STATIC_INLINE void LL_RCC_ConfigMCO(uint32_t MCOxSource, uint32_t MCOxPrescaler)
 {
+  (void)(MCOxPrescaler);
 #if defined(RCC_CFGR_MCOPRE)
 #if defined(RCC_CFGR_PLLNODIV)
   MODIFY_REG(RCC->CFGR, RCC_CFGR_MCOSEL | RCC_CFGR_MCOPRE | RCC_CFGR_PLLNODIV, MCOxSource | MCOxPrescaler);

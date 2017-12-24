@@ -55,54 +55,83 @@ static motorPwmProtocolTypes_e pwmProtocolType = PWM_TYPE_NONE;
 void pwm_input_init(void)
 {
     /* GPIOB clock enable */
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
     /* TIM3 chennel1 configuration : PB4 */
-    GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_4;
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP ;
-    GPIO_Init(GPIOB, &GPIO_InitStructure);
+    LL_GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_InitStructure.Pin   = LL_GPIO_PIN_4;
+    GPIO_InitStructure.Mode  = LL_GPIO_MODE_ALTERNATE;
+    GPIO_InitStructure.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+    GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+    GPIO_InitStructure.Pull  = LL_GPIO_PULL_UP ;
+    GPIO_InitStructure.Alternate = LL_GPIO_AF_1;
+    LL_GPIO_Init(GPIOB, &GPIO_InitStructure);
 
     /* Connect TIM pin to AF1 */
-    GPIO_PinAFConfig(GPIOB, GPIO_PinSource4, GPIO_AF_1);
+    LL_GPIO_SetAFPin_0_7(GPIOB, LL_GPIO_PIN_4, LL_GPIO_AF_1);
 
     /* TIM3 clock enable */
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM3);
 
     /* Enable the TIM3 global Interrupt */
     nvicEnableVector(TIM3_IRQn, 2);
 
-    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-    TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
-    TIM_TimeBaseStructure.TIM_Prescaler = 48-1;
-    TIM_TimeBaseStructure.TIM_Period = 65535;
-    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+    LL_TIM_InitTypeDef TIM_TimeBaseStructure;
+    LL_TIM_StructInit(&TIM_TimeBaseStructure);
+    TIM_TimeBaseStructure.Prescaler = 48-1;
+    TIM_TimeBaseStructure.Autoreload = 65535;
+    TIM_TimeBaseStructure.CounterMode = LL_TIM_COUNTERMODE_UP;
     // TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-    TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
+    LL_TIM_Init(TIM3, &TIM_TimeBaseStructure);
 
-    TIM_ICInitTypeDef TIM_ICInitStructure;
-    TIM_ICInitStructure.TIM_Channel = TIM_Channel_1;
-    TIM_ICInitStructure.TIM_ICPolarity = TIM_ICPolarity_Rising;
-    TIM_ICInitStructure.TIM_ICSelection = TIM_ICSelection_DirectTI;
-    TIM_ICInitStructure.TIM_ICPrescaler = TIM_ICPSC_DIV1;
-    TIM_ICInitStructure.TIM_ICFilter = 0x04;
+    LL_TIM_IC_InitTypeDef TIM_ICInitStructure;
+    TIM_ICInitStructure.ICPolarity = LL_TIM_IC_POLARITY_RISING;
+    TIM_ICInitStructure.ICActiveInput = LL_TIM_ACTIVEINPUT_DIRECTTI;
+    TIM_ICInitStructure.ICPrescaler = LL_TIM_ICPSC_DIV1;
+    TIM_ICInitStructure.ICFilter = 0x04;
 
-    TIM_PWMIConfig(TIM3, &TIM_ICInitStructure);
+    uint16_t tim_icoppositepolarity_8 = (uint16_t)LL_TIM_IC_POLARITY_RISING;
+    uint16_t tim_icoppositeselection_8 = (uint16_t)LL_TIM_ACTIVEINPUT_DIRECTTI;
+    /* Select the Opposite Input Polarity */
+    if (TIM_ICInitStructure.ICPolarity == LL_TIM_IC_POLARITY_RISING) {
+        tim_icoppositepolarity_8 = (uint16_t)LL_TIM_IC_POLARITY_FALLING;
+    } else {
+        tim_icoppositepolarity_8 = (uint16_t)LL_TIM_IC_POLARITY_RISING;
+    }
+    /* Select the Opposite Input */
+    if (TIM_ICInitStructure.ICActiveInput == LL_TIM_ACTIVEINPUT_DIRECTTI) {
+        tim_icoppositeselection_8 = (uint16_t)LL_TIM_ACTIVEINPUT_INDIRECTTI;
+    } else {
+        tim_icoppositeselection_8 = (uint16_t)LL_TIM_ACTIVEINPUT_INDIRECTTI;
+    }
+    /* TI1 Configuration */
+    LL_TIM_CC_DisableChannel(TIM3, LL_TIM_CHANNEL_CH1);
+    LL_TIM_IC_SetActiveInput(TIM3, LL_TIM_CHANNEL_CH1, TIM_ICInitStructure.ICActiveInput);
+    LL_TIM_IC_SetFilter(TIM3, LL_TIM_CHANNEL_CH1, TIM_ICInitStructure.ICFilter);
+    LL_TIM_IC_SetPolarity(TIM3, LL_TIM_CHANNEL_CH1, TIM_ICInitStructure.ICPolarity);
+    LL_TIM_CC_EnableChannel(TIM3, LL_TIM_CHANNEL_CH1);
+    /* Set the Input Capture Prescaler value */
+    LL_TIM_IC_SetPrescaler(TIM3, LL_TIM_CHANNEL_CH1, TIM_ICInitStructure.ICPrescaler);
+    /* TI2 Configuration */
+    LL_TIM_CC_DisableChannel(TIM3, LL_TIM_CHANNEL_CH2);
+    LL_TIM_IC_SetActiveInput(TIM3, LL_TIM_CHANNEL_CH2, tim_icoppositeselection_8);
+    LL_TIM_IC_SetFilter(TIM3, LL_TIM_CHANNEL_CH2, TIM_ICInitStructure.ICFilter);
+    LL_TIM_IC_SetPolarity(TIM3, LL_TIM_CHANNEL_CH2, tim_icoppositepolarity_8);
+    LL_TIM_CC_EnableChannel(TIM3, LL_TIM_CHANNEL_CH2);
+    /* Set the Input Capture Prescaler value */
+    LL_TIM_IC_SetPrescaler(TIM3, LL_TIM_CHANNEL_CH2, TIM_ICInitStructure.ICPrescaler);
 
     /* Select the TIM3 Input Trigger: TI1FP1 */
-    TIM_SelectInputTrigger(TIM3, TIM_TS_TI1FP1);
+    LL_TIM_SetTriggerInput(TIM3, LL_TIM_TS_TI1FP1);
 
     /* Select the slave Mode: Reset Mode */
-    TIM_SelectSlaveMode(TIM3, TIM_SlaveMode_Reset);
-    TIM_SelectMasterSlaveMode(TIM3,TIM_MasterSlaveMode_Enable);
+    LL_TIM_SetSlaveMode(TIM3, LL_TIM_SLAVEMODE_RESET);
+    LL_TIM_EnableMasterSlaveMode(TIM3);
 
     /* TIM enable counter */
-    TIM_Cmd(TIM3, ENABLE);
+    LL_TIM_EnableCounter(TIM3);
 
     /* Enable the CC1 Interrupt Request */
-    TIM_ITConfig(TIM3, TIM_IT_CC1, ENABLE);
+    LL_TIM_EnableIT_CC1(TIM3);
 }
 
 static __IO uint16_t throttle = 0;
@@ -110,26 +139,26 @@ static __IO uint16_t throttle = 0;
 void TIM3_IRQHandler(void)
 {
     /* Clear TIM3 Capture compare interrupt pending bit */
-    TIM_ClearITPendingBit(TIM3, TIM_IT_CC1);
+    LL_TIM_ClearFlag_CC1(TIM3);
 
-    if(pwmProtocolType == PWM_TYPE_NONE) {
-        const uint16_t pulseWidth = TIM_GetCapture2(TIM3);
+    if (pwmProtocolType == PWM_TYPE_NONE) {
+        const uint16_t pulseWidth = LL_TIM_IC_GetCaptureCH2(TIM3);
 
-        if(950 <= pulseWidth && pulseWidth <= 2050) { // 1000Us - 2000Us
+        if (950 <= pulseWidth && pulseWidth <= 2050) { // 1000Us - 2000Us
             pwmProtocolType = PWM_TYPE_STANDARD;
-        } else if(120 <= pulseWidth && pulseWidth <= 255) { // 125Us - 250Us
+        } else if (120 <= pulseWidth && pulseWidth <= 255) { // 125Us - 250Us
             pwmProtocolType = PWM_TYPE_ONESHOT125;
-        } else if(40 <= pulseWidth && pulseWidth <= 86) { // 42Us - 84Us
+        } else if (40 <= pulseWidth && pulseWidth <= 86) { // 42Us - 84Us
             pwmProtocolType = PWM_TYPE_ONESHOT42;
-        } else if(2 <= pulseWidth && pulseWidth <= 28) { // 5Us - 25Us
+        } else if (2 <= pulseWidth && pulseWidth <= 28) { // 5Us - 25Us
             pwmProtocolType = PWM_TYPE_MULTISHOT;
         } else {
             pwmProtocolType = PWM_TYPE_NONE;
         }
     }
 
-    if(pwmProtocolType != PWM_TYPE_NONE) {
-        throttle = TIM_GetCapture2(TIM3);
+    if (pwmProtocolType != PWM_TYPE_NONE) {
+        throttle = LL_TIM_IC_GetCaptureCH2(TIM3);
     }
 
     // printf("---%d,%d,%d----\n", TIM_GetCapture1(TIM3), TIM_GetCapture2(TIM3), pwmProtocolType);

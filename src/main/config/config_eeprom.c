@@ -1,9 +1,19 @@
 #include "include.h"
 
-#define FLASH_PAGE_SIZE                 ((uint16_t)0x400)
+#include "stm32f0xx_hal_flash.h"
+
 #define FLASH_PAGE_COUNT                64
 #define FLASH_TO_RESERVE_FOR_CONFIG     0x800
 #define CONFIG_START_FLASH_ADDRESS      (0x08000000 + (uint32_t)((FLASH_PAGE_SIZE * FLASH_PAGE_COUNT) - FLASH_TO_RESERVE_FOR_CONFIG))
+
+typedef enum
+{
+  FLASH_BUSY = 1,
+  FLASH_ERROR_WRP,
+  FLASH_ERROR_PROGRAM,
+  FLASH_COMPLETE,
+  FLASH_TIMEOUT
+} FLASH_Status;
 
 static uint8_t calculateChecksum(const uint8_t *data, uint32_t length)
 {
@@ -38,7 +48,7 @@ bool isEEPROMContentValid(void)
 
 void writeEEPROM(void)
 {
-    FLASH_Status status = 0;
+
     int8_t attemptsRemaining = 3;
 
     masterConfig.version = EEPROM_CONF_VERSION;
@@ -48,32 +58,39 @@ void writeEEPROM(void)
     masterConfig.chk = 0; 
     masterConfig.chk = calculateChecksum((const uint8_t *) &masterConfig, sizeof(master_t));
 
-    FLASH_Unlock();
+    HAL_StatusTypeDef status;
+    HAL_FLASH_Unlock();
     while (attemptsRemaining--) {
-        FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPERR);
-
         for (uint32_t wordOffset = 0; wordOffset < sizeof(master_t); wordOffset += 4) {
             if (wordOffset % FLASH_PAGE_SIZE == 0) {
-                status = FLASH_ErasePage(CONFIG_START_FLASH_ADDRESS + wordOffset);
-                if (status != FLASH_COMPLETE) {
+
+                FLASH_EraseInitTypeDef eraseInit;
+                eraseInit.TypeErase   = FLASH_TYPEERASE_PAGES;
+                eraseInit.PageAddress = CONFIG_START_FLASH_ADDRESS + wordOffset;
+                eraseInit.NbPages = 1;
+
+                uint32_t eraseError = 0;
+
+                status = HAL_FLASHEx_Erase(&eraseInit, &eraseError);
+                if (status != HAL_OK) {
                     break;
                 }
             }
-
-            status = FLASH_ProgramWord(CONFIG_START_FLASH_ADDRESS + wordOffset, *(uint32_t *) ((char *) &masterConfig + wordOffset));
-            if (status != FLASH_COMPLETE) {
+            
+            status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, CONFIG_START_FLASH_ADDRESS + wordOffset, *(uint32_t *) ((char *) &masterConfig + wordOffset));
+            if (status != HAL_OK) {
                 break;
             }
         }
 
-        if (status == FLASH_COMPLETE) {
+        if (status == HAL_OK) {
             break;
         }
     }
 
-    FLASH_Lock();
+    HAL_FLASH_Lock();
 
-    if (status != FLASH_COMPLETE || !isEEPROMContentValid()) {
+    if (status != HAL_OK || !isEEPROMContentValid()) {
 
     }
 }

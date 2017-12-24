@@ -1,31 +1,35 @@
 #
 # F0 Make file include
 #
-STDPERIPH_DIR    = $(ROOT)/lib/main/STM32F0/Drivers/STM32F0xx_StdPeriph_Driver
-STDPERIPH_SRC    = $(notdir $(wildcard $(STDPERIPH_DIR)/src/*.c))
+CMSIS_DIR       := $(LIB_DIR)/$(TARGET_MCU)/Drivers/CMSIS
+
+DRIVER_DIR       = $(LIB_DIR)/$(TARGET_MCU)/Drivers/STM32F0xx_HAL_Driver
+DRIVER_SRC       = $(notdir $(wildcard $(DRIVER_DIR)/Src/*.c))
 EXCLUDES         = \
-				   stm32f0xx_rtc.c
+				   stm32f0xx_rtc.c \
+                   stm32f0xx_hal_timebase_rtc_wakeup_template.c \
+                   stm32f0xx_hal_timebase_rtc_alarm_template.c \
+                   stm32f0xx_hal_timebase_tim_template.c
 
 STARTUP_SRC      = startup_$(STM_CHIP)_gcc.s
-STDPERIPH_SRC   := $(filter-out ${EXCLUDES}, $(STDPERIPH_SRC))
+DRIVER_SRC      := $(filter-out ${EXCLUDES}, $(DRIVER_SRC))
 
 # Search path and source files for the CMSIS sources
-VPATH           := $(VPATH):$(CMSIS_DIR)/Include:$(CMSIS_DIR)/Device
-CMSIS_SRC        = $(notdir $(wildcard $(CMSIS_DIR)/Device/*.c))
+CMSIS_SRC        = $(notdir $(wildcard $(LIB_DIR)/Device/*.c))
+VPATH           := $(VPATH):$(LIB_DIR):$(LIB_DIR)/Device:$(DRIVER_DIR)/Src
 
 INCLUDE_DIRS    := $(INCLUDE_DIRS) \
-                   $(STDPERIPH_DIR)/inc \
+                   $(DRIVER_DIR)/Inc \
+                   $(DRIVER_DIR)/Inc/Legacy \
                    $(CMSIS_DIR)/Include \
-                   $(CMSIS_DIR)/Device
-
-DEVICE_STDPERIPH_SRC = $(STDPERIPH_SRC)
+                   $(CMSIS_DIR)/Device/ST/STM32F0xx/Include
 
 LD_SCRIPT       = $(LINKER_DIR)/stm32_flash_f0xx_$(FLASH_SIZE)k.ld
 ARCH_FLAGS      = -mthumb -mcpu=cortex-m0
 
-DEVICE_FLAGS   += -DSTM32F0XX
+DEVICE_FLAGS   += -DSTM32F0XX -DUSE_HAL_DRIVER -DUSE_FULL_LL_DRIVER
 
-MCU_COMMON_SRC = \
+MCU_SRC        := target/system_stm32f0xx.c
 
 ifneq ($(DEBUG),GDB)
 OPTIMISE_DEFAULT    := -Os

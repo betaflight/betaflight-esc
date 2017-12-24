@@ -19,21 +19,25 @@
 #include <stdint.h>
 
 #include "include.h"
+#include "drivers/drv_led.h"
 
 void _init(void)
 {
-    SystemInit();
+    //SystemInit();
 }
 
 struct Timer timerLedUpdate;
 
 void timer_led_callback(void)
 {
-    LED_RED_TOGGLE();
+    LED0_TOGGLE();
 }
 
 int main(void)
 {
+    HAL_Init();
+    SystemCoreClockUpdate();
+    
     system_init();
 
     serialInit();

@@ -25,10 +25,10 @@ static volatile int64_t _remaining_ticks = 0;
 void TIM14_IRQHandler(void)
 {
     if ((TIM14->SR & TIM_SR_CC1IF) && (TIM14->DIER & TIM_DIER_CC1IE)) {
-        TIM_ClearITPendingBit(TIM14, TIM_IT_CC1);
+        LL_TIM_ClearFlag_CC1(TIM14);
 
         if (_remaining_ticks <= (MAX_FREQUENCY / 1000000)) {// MIN_REMAINING_TICKS
-            TIM_ITConfig(TIM14, TIM_IT_CC1, DISABLE);// Disable this compare match 
+            LL_TIM_DisableIT_CC1(TIM14);// Disable this compare match 
             const uint64_t timestamp = motor_timer_hnsec() - 2;
             motor_timer_callback(timestamp);
         } else {
@@ -49,7 +49,7 @@ void TIM14_IRQHandler(void)
  */
 void TIM17_IRQHandler(void)
 {
-    TIM_ClearITPendingBit(TIM17, TIM_IT_Update);
+    LL_TIM_ClearFlag_UPDATE(TIM17);
 
     _raw_ticks += TICKS_PER_OVERFLOW;
 }
@@ -57,13 +57,13 @@ void TIM17_IRQHandler(void)
 void motor_timer_init(void)
 {
     /* TIM14 & TIM17 clock Power-on and reset */
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM14, ENABLE);
-    RCC_APB1PeriphResetCmd(RCC_APB1Periph_TIM14, ENABLE);
-    RCC_APB1PeriphResetCmd(RCC_APB1Periph_TIM14, DISABLE);
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM14);
+    LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_TIM14);
+    LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_TIM14);
 
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM17, ENABLE);
-    RCC_APB2PeriphResetCmd(RCC_APB2Periph_TIM17, ENABLE);
-    RCC_APB2PeriphResetCmd(RCC_APB2Periph_TIM17, DISABLE);
+    LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_TIM17);
+    LL_APB1_GRP2_ForceReset(LL_APB1_GRP2_PERIPH_TIM17);
+    LL_APB1_GRP2_ReleaseReset(LL_APB1_GRP2_PERIPH_TIM17);
 
     // Find the optimal prescaler value = 48Mhz / 12Mhz = 4
     uint32_t prescaler = (uint32_t)(SystemCoreClock / ((float)MAX_FREQUENCY)); // Initial value
@@ -117,13 +117,13 @@ uint64_t motor_timer_hnsec(void)
 
     while (1) {
         ticks = _raw_ticks;
-        sample = TIM_GetCounter(TIM17);
+        sample = LL_TIM_GetCounter(TIM17);
 
         const volatile uint64_t ticks2 = _raw_ticks;
 
         if (ticks == ticks2) {
-            if (TIM_GetFlagStatus(TIM17, TIM_FLAG_Update)) {
-                sample = TIM_GetCounter(TIM17);
+            if (LL_TIM_IsActiveFlag_UPDATE(TIM17)) {
+                sample = LL_TIM_GetCounter(TIM17);
                 ticks += TICKS_PER_OVERFLOW;
             }
             break;
@@ -157,7 +157,7 @@ void motor_timer_set_relative(int64_t delay_hnsec)
     }
 
     if (delay_hnsec > HNSEC_PER_USEC) {
-        TIM14->CCR1 = TIM_GetCounter(TIM14) + delay_ticks;
+        TIM14->CCR1 = LL_TIM_GetCounter(TIM14) + delay_ticks;
         TIM14->SR = ~TIM_SR_CC1IF;             // Acknowledge IRQ
         TIM14->DIER |= TIM_DIER_CC1IE;         // Enable this compare match
     } else {
@@ -184,8 +184,8 @@ int64_t motor_timer_set_absolute(uint64_t timestamp_hnsec)
 
 void motor_timer_cancel(void)
 {
-    TIM_ITConfig(TIM14, TIM_IT_CC1, DISABLE);// Disable this compare match 
-    TIM_ClearITPendingBit(TIM14, TIM_IT_CC1);
+    LL_TIM_DisableIT_CC1(TIM14);// Disable this compare match 
+    LL_TIM_ClearFlag_CC1(TIM14);
 }
 
 void motor_timer_hndelay(int hnsecs)

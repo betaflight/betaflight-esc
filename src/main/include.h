@@ -1,11 +1,32 @@
 #pragma once
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <math.h>
+#include <string.h>
+#include <stdio.h>
+#include <assert.h>
 
 #include "build/version.h"
 
 #ifdef STM32F0
 
-#include "stm32f0xx.h"
 #include "system_stm32f0xx.h"
+#include "target/system_stm32f0xx.h"
+#include "stm32f0xx.h"
+#include "stm32f0xx_hal.h"
+
+#include "stm32f0xx_ll_crs.h"
+#include "stm32f0xx_ll_rcc.h"
+#include "stm32f0xx_ll_bus.h"
+#include "stm32f0xx_ll_system.h"
+#include "stm32f0xx_ll_exti.h"
+#include "stm32f0xx_ll_cortex.h"
+#include "stm32f0xx_ll_utils.h"
+#include "stm32f0xx_ll_pwr.h"
+#include "stm32f0xx_ll_dma.h"
+#include "stm32f0xx_ll_tim.h"
+#include "stm32f0xx_ll_gpio.h"
 
 #endif
 
@@ -20,13 +41,7 @@
 #define MIN(a, b)                   (((a) < (b)) ? (a) : (b))
 #define MAX(a, b)                   (((a) > (b)) ? (a) : (b))
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <math.h>
-#include <string.h>
-#include <stdio.h>
-#include <assert.h>
+#include "target.h"
 
 #include "irq.h"
 

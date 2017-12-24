@@ -1,16 +1,20 @@
 #include "include.h"
 
-#define BEMF_A_CMP_IN COMP_InvertingInput_IO    // PA0
-#define BEMF_B_CMP_IN COMP_InvertingInput_DAC1  // PA4
-#define BEMF_C_CMP_IN COMP_InvertingInput_DAC2  // PA5
+#include "stm32f0xx_ll_exti.h"
+#include "stm32f0xx_ll_gpio.h"
+#include "stm32f0xx_ll_comp.h"
 
-static COMP_InitTypeDef COMP_InitStructure;
+#define BEMF_A_CMP_IN LL_COMP_INPUT_MINUS_IO1    // PA0
+#define BEMF_B_CMP_IN LL_COMP_INPUT_MINUS_DAC1_CH1  // PA4
+#define BEMF_C_CMP_IN LL_COMP_INPUT_MINUS_DAC1_CH2  // PA5
+
+static LL_COMP_InitTypeDef COMP_InitStructure;
 
 void ADC1_COMP_IRQHandler(void)
 {
-    if(EXTI_GetITStatus(EXTI_Line21) != RESET) {
-        EXTI_ClearITPendingBit(EXTI_Line21);
-        motor_comparator_zc_callback(COMP_GetOutputLevel(COMP_Selection_COMP1) == COMP_OutputLevel_High);
+    if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_21) != RESET) {
+        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_21);
+        motor_comparator_zc_callback(LL_COMP_GetPowerMode(COMP1) == LL_COMP_OUTPUT_LEVEL_HIGH);
     }
 }
 
@@ -21,39 +25,40 @@ void ADC1_COMP_IRQHandler(void)
 void motor_comparator_init(void)
 {
     /* GPIOA Peripheral clock enable */
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
 
     /* Configure PA0 PA1 PA4 PA5: PA1 is used as COMP1 non inveting input */
-    GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_StructInit(&GPIO_InitStructure);
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_4 | GPIO_Pin_5;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
+    LL_GPIO_InitTypeDef GPIO_InitStructure;
+    LL_GPIO_StructInit(&GPIO_InitStructure);
+    GPIO_InitStructure.Pin = LL_GPIO_PIN_0 | LL_GPIO_PIN_1 | LL_GPIO_PIN_4 | LL_GPIO_PIN_5;
+    GPIO_InitStructure.Mode = LL_GPIO_MODE_ANALOG;
+    GPIO_InitStructure.Pull = LL_GPIO_PULL_NO;
+    GPIO_InitStructure.Alternate = LL_GPIO_AF_0;
+    LL_GPIO_Init(GPIOA, &GPIO_InitStructure);
 
     /* COMP Peripheral clock enable */
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+    LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_SYSCFG);
 
-    COMP_StructInit(&COMP_InitStructure);
-    COMP_InitStructure.COMP_InvertingInput = BEMF_B_CMP_IN;
-    COMP_InitStructure.COMP_Output = COMP_Output_None;
-    COMP_InitStructure.COMP_Mode = COMP_Mode_HighSpeed;
-    COMP_InitStructure.COMP_Hysteresis = COMP_Hysteresis_No;
-    COMP_InitStructure.COMP_OutputPol = COMP_OutputPol_NonInverted;
-    COMP_Init(COMP_Selection_COMP1, &COMP_InitStructure);
+    LL_COMP_StructInit(&COMP_InitStructure);
+    COMP_InitStructure.InputMinus = BEMF_B_CMP_IN;
+    COMP_InitStructure.OutputSelection = LL_COMP_OUTPUT_NONE;
+    COMP_InitStructure.PowerMode = LL_COMP_POWERMODE_HIGHSPEED;
+    COMP_InitStructure.InputHysteresis = LL_COMP_HYSTERESIS_NONE;
+    COMP_InitStructure.OutputPolarity = LL_COMP_OUTPUTPOL_NONINVERTED;
+    LL_COMP_Init(COMP1, &COMP_InitStructure);
 
     /* Enable COMP1 */
-    COMP_Cmd(COMP_Selection_COMP1, ENABLE);
+    LL_COMP_Enable(COMP1);
 
     /* Configure EXTI Line 21 in interrupt mode */
-    EXTI_InitTypeDef EXTI_InitStructure;
-    EXTI_InitStructure.EXTI_Line = EXTI_Line21;
-    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
-    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-    EXTI_Init(&EXTI_InitStructure);
+    LL_EXTI_InitTypeDef EXTI_InitStructure;
+    EXTI_InitStructure.Line_0_31 = LL_EXTI_LINE_21;
+    EXTI_InitStructure.Mode = LL_EXTI_MODE_IT;
+    EXTI_InitStructure.Trigger = LL_EXTI_TRIGGER_RISING_FALLING;
+    EXTI_InitStructure.LineCommand = ENABLE;
+    LL_EXTI_Init(&EXTI_InitStructure);
     /* Clear EXTI21 line */
-    EXTI_ClearITPendingBit(EXTI_Line21);
+    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_21);
 
     nvicEnableVector(ADC1_COMP_IRQn, 0);
 }
@@ -62,27 +67,27 @@ void motor_comparator_set_input_source(uint_fast8_t phase)
 {
     switch(phase) {
     case 0:
-        COMP_InitStructure.COMP_InvertingInput = BEMF_A_CMP_IN;
+        COMP_InitStructure.InputMinus = BEMF_A_CMP_IN;
         break;
 
     case 1:
-        COMP_InitStructure.COMP_InvertingInput = BEMF_B_CMP_IN;
+        COMP_InitStructure.InputMinus = BEMF_B_CMP_IN;
         break;
 
     case 2:
-        COMP_InitStructure.COMP_InvertingInput = BEMF_C_CMP_IN;
+        COMP_InitStructure.InputMinus = BEMF_C_CMP_IN;
         break;
 
     default:
         return;
     }
 
-    COMP_Init(COMP_Selection_COMP1, &COMP_InitStructure);
+    LL_COMP_Init(COMP1, &COMP_InitStructure);
 }
 
 void motor_comparator_enable_from_isr(void)
 {
-    EXTI_ClearITPendingBit(EXTI_Line21);
+    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_21);
     NVIC_EnableIRQ(ADC1_COMP_IRQn);
 }
 

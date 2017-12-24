@@ -4,7 +4,6 @@ VALID_TARGETS   = $(dir $(wildcard $(ROOT)/src/main/target/*/target.mk))
 VALID_TARGETS  := $(subst /,, $(subst ./src/main/target/,, $(VALID_TARGETS)))
 VALID_TARGETS  := $(VALID_TARGETS) $(ALT_TARGETS)
 VALID_TARGETS  := $(sort $(VALID_TARGETS))
-VALID_TARGETS  := $(filter-out $(SKIP_TARGETS), $(VALID_TARGETS))
 
 -include $(ROOT)/src/main/target/$(TARGET)/target.mk
 
@@ -25,7 +24,5 @@ TARGET_MCU := STM32F0
 else
 $(error Unknown target MCU specified.)
 endif
-
-CMSIS_DIR       := $(LIB_DIR)/$(TARGET_MCU)/Drivers/CMSIS
 
 TARGET_FLAGS  	:= $(TARGET_FLAGS) -D$(TARGET_MCU)
