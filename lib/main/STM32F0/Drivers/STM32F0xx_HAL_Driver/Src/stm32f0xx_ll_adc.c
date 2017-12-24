@@ -184,6 +184,8 @@
   */
 ErrorStatus LL_ADC_CommonDeInit(ADC_Common_TypeDef *ADCxy_COMMON)
 {
+  UNUSED(ADCxy_COMMON);
+  
   /* Check the parameters */
   assert_param(IS_ADC_COMMON_INSTANCE(ADCxy_COMMON));
   

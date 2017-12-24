@@ -153,6 +153,8 @@
   */
 ErrorStatus LL_DAC_DeInit(DAC_TypeDef *DACx)
 {
+  UNUSED(DACx);
+  
   /* Check the parameters */
   assert_param(IS_DAC_ALL_INSTANCE(DACx));
   
@@ -184,6 +186,8 @@ ErrorStatus LL_DAC_DeInit(DAC_TypeDef *DACx)
   */
 ErrorStatus LL_DAC_Init(DAC_TypeDef *DACx, uint32_t DAC_Channel, LL_DAC_InitTypeDef *DAC_InitStruct)
 {
+  UNUSED(DAC_InitStruct);
+
   ErrorStatus status = SUCCESS;
   
   /* Check the parameters */
