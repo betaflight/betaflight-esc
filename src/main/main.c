@@ -27,36 +27,9 @@ void _init(void)
 
 struct Timer timerLedUpdate;
 
-/*
-// AC -> AB -> CB -> CA -> BA -> BC
-static const struct motor_pwm_commutation_step COMMUTATION_TABLE_FORWARD[MOTOR_NUM_COMMUTATION_STEPS] = {
-    {1, 0, 2},
-    {1, 2, 0},
-    {0, 2, 1},
-    {0, 1, 2},
-    {2, 1, 0},
-    {2, 0, 1}
-};
-
-static void motorTestTask(void)
-{
-    static int current_comm_step;
-    motor_pwm_set_step_and_pwm(COMMUTATION_TABLE_FORWARD + current_comm_step, 100);
-    current_comm_step++;
-    
-    if (current_comm_step >= MOTOR_NUM_COMMUTATION_STEPS) {
-        current_comm_step = 0;
-    }
-}
-*/
-
 void timer_led_callback(void)
 {
     LED_RED_TOGGLE();
-    // update_voltage_current_temperate();
-    // printf("ticks:%llu\n",motor_timer_hnsec());
-    // printf("temp:%f\n",motor_adc_get_temperature());
-    // motorTestTask();
 }
 
 int main(void)

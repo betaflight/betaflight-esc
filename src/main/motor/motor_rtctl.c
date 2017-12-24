@@ -36,22 +36,22 @@
 // AC -> AB -> CB -> CA -> BA -> BC
 // CB -> AC -> BA -> CB -> AC -> BA -> CB -> AC -> BA
 static const struct motor_pwm_commutation_step COMMUTATION_TABLE_FORWARD[MOTOR_NUM_COMMUTATION_STEPS] = {
-    {1, 0, 2},
-    {1, 2, 0},
-    {0, 2, 1},
-    {0, 1, 2},
-    {2, 1, 0},
-    {2, 0, 1}  
+	{PHASE_B, PHASE_A, PHASE_C},
+	{PHASE_B, PHASE_C, PHASE_A},
+	{PHASE_A, PHASE_C, PHASE_B},
+	{PHASE_A, PHASE_B, PHASE_C},
+	{PHASE_C, PHASE_B, PHASE_A},
+	{PHASE_C, PHASE_A, PHASE_B}
 };
 
 // CA -> CB -> AB -> AC -> BC -> BA
 static const struct motor_pwm_commutation_step COMMUTATION_TABLE_REVERSE[MOTOR_NUM_COMMUTATION_STEPS] = {
-    {2, 0, 1},
-    {2, 1, 0},
-    {0, 1, 2},
-    {0, 2, 1},
-    {1, 2, 0},
-    {1, 0, 2}
+    {PHASE_C, PHASE_A, PHASE_B},
+    {PHASE_C, PHASE_B, PHASE_A},
+    {PHASE_A, PHASE_B, PHASE_C},
+    {PHASE_A, PHASE_C, PHASE_B},
+    {PHASE_B, PHASE_C, PHASE_A},
+    {PHASE_B, PHASE_A, PHASE_C}
 };
 
 enum flags
