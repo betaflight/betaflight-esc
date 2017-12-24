@@ -48,6 +48,12 @@ extern "C" {
   * @{
   */
 
+/* ignore some GCC warnings */
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#endif
+
 #if defined(CRC)
 
 /** @defgroup CRC_LL CRC
@@ -491,6 +497,10 @@ ErrorStatus LL_CRC_DeInit(CRC_TypeDef *CRCx);
 /**
   * @}
   */
+
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic pop
+#endif
 
 #ifdef __cplusplus
 }

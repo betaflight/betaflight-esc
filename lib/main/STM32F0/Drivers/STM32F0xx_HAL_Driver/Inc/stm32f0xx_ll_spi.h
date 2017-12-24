@@ -41,6 +41,11 @@
 extern "C" {
 #endif
 
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#endif
+
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx.h"
 
@@ -2283,6 +2288,10 @@ void        LL_I2S_ConfigPrescaler(SPI_TypeDef *SPIx, uint32_t PrescalerLinear, 
 /**
   * @}
   */
+
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic pop
+#endif
 
 #ifdef __cplusplus
 }
