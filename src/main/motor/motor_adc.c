@@ -1,5 +1,9 @@
 #include "include.h"
 
+#include "stm32f0xx_ll_gpio.h"
+#include "stm32f0xx_ll_dma.h"
+#include "stm32f0xx_ll_adc.h"
+
 #define LOWPASS(xold, xnew, alpha_rcpr) \
     (((xold) * (alpha_rcpr) + (xnew) + (((alpha_rcpr) + 1) / 2)) / ((alpha_rcpr) + 1))
 
@@ -24,72 +28,80 @@ void update_voltage_current_temperate(void)
 void motor_adc_init(void)
 {
     /* GPIOA Periph clock enable */
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
 
     /* ADC1 Periph clock enable */
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
+    LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_ADC1);
 
     /* Configure ADC Channel3 and channel6 as analog input */
-    GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_6 | GPIO_Pin_0 | GPIO_Pin_4 | GPIO_Pin_5;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
+    LL_GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_InitStructure.Pin = LL_GPIO_PIN_3 | LL_GPIO_PIN_6 | LL_GPIO_PIN_0 | LL_GPIO_PIN_4 | LL_GPIO_PIN_5;
+    GPIO_InitStructure.Mode = LL_GPIO_MODE_ANALOG;
+    GPIO_InitStructure.Pull = LL_GPIO_PULL_NO ;
+    GPIO_InitStructure.Alternate = LL_GPIO_AF_0;
+    LL_GPIO_Init(GPIOA, &GPIO_InitStructure);
 
     /* DMA1 clock enable */
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
     /* DMA1 Channel1 Config */
-    DMA_DeInit(DMA1_Channel1);
-    DMA_InitTypeDef DMA_InitStructure;
-    DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)&ADC1->DR;
-    DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)adcValues;
-    DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
-    DMA_InitStructure.DMA_BufferSize = 6;
-    DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-    DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
-    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
-    DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
-    DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
-    DMA_InitStructure.DMA_Priority = DMA_Priority_High;
-    DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
-    DMA_Init(DMA1_Channel1, &DMA_InitStructure);
+    LL_DMA_DeInit(DMA1, LL_DMA_CHANNEL_1);
+    LL_DMA_InitTypeDef DMA_InitStructure;
+    DMA_InitStructure.PeriphOrM2MSrcAddress = (uint32_t)&ADC1->DR;
+    DMA_InitStructure.MemoryOrM2MDstAddress = (uint32_t)adcValues;
+    DMA_InitStructure.Direction = LL_DMA_DIRECTION_PERIPH_TO_MEMORY;
+    DMA_InitStructure.NbData = 6;
+    DMA_InitStructure.PeriphOrM2MSrcIncMode = LL_DMA_PERIPH_NOINCREMENT;
+    DMA_InitStructure.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
+    DMA_InitStructure.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_HALFWORD;
+    DMA_InitStructure.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_HALFWORD;
+    DMA_InitStructure.Mode = LL_DMA_MODE_CIRCULAR;
+    DMA_InitStructure.Priority = LL_DMA_PRIORITY_HIGH;
+    LL_DMA_Init(DMA1, LL_DMA_CHANNEL_1, &DMA_InitStructure);
     /* DMA1 Channel1 enable */
-    DMA_Cmd(DMA1_Channel1, ENABLE);
+    LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_1);
 
     /* ADC1 DeInit */
-    ADC_DeInit(ADC1);
+    LL_ADC_CommonDeInit(__LL_ADC_COMMON_INSTANCE(ADC1));
     /* Initialize ADC structure */
-    ADC_InitTypeDef ADC_InitStructure;
-    ADC_StructInit(&ADC_InitStructure);
+    LL_ADC_InitTypeDef ADC_InitStructure;
+    LL_ADC_StructInit(&ADC_InitStructure);
 
     /* Configure the ADC1 in continuous mode withe a resolution equal to 12 bits  */
-    ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
-    ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
-    ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
-    ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-    ADC_InitStructure.ADC_ScanDirection = ADC_ScanDirection_Upward;
-    ADC_Init(ADC1, &ADC_InitStructure);
+    ADC_InitStructure.Resolution = LL_ADC_RESOLUTION_12B;
+    //ADC_InitStructure.ContinuousConvMode = ENABLE;
+    //ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
+    ADC_InitStructure.DataAlignment = LL_ADC_DATA_ALIGN_RIGHT;
+    //ADC_InitStructure.ScanDirection = ADC_ScanDirection_Upward;
+    LL_ADC_Init(ADC1, &ADC_InitStructure);
 
     /* Convert the ADC1 Channel3 and channel6 with 55.5 Cycles as sampling time */
-    ADC_ChannelConfig(ADC1, ADC_Channel_3, ADC_SampleTime_55_5Cycles);
-    ADC_ChannelConfig(ADC1, ADC_Channel_6, ADC_SampleTime_55_5Cycles);
-    ADC_ChannelConfig(ADC1, ADC_Channel_TempSensor, ADC_SampleTime_55_5Cycles);
-    ADC_TempSensorCmd(ENABLE);
+    LL_ADC_REG_SetSequencerChannels(ADC1, LL_ADC_CHANNEL_3);
+    LL_ADC_SetSamplingTimeCommonChannels(ADC1, LL_ADC_SAMPLINGTIME_55CYCLES_5);
+    LL_ADC_REG_SetSequencerChannels(ADC1, LL_ADC_CHANNEL_6);
+    LL_ADC_SetSamplingTimeCommonChannels(ADC1, LL_ADC_SAMPLINGTIME_55CYCLES_5);
+    LL_ADC_REG_SetSequencerChannels(ADC1, LL_ADC_CHANNEL_TEMPSENSOR);
+    LL_ADC_SetSamplingTimeCommonChannels(ADC1, LL_ADC_SAMPLINGTIME_55CYCLES_5);
+    LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(ADC1), LL_ADC_PATH_INTERNAL_TEMPSENSOR);
 
-    ADC_ChannelConfig(ADC1, ADC_Channel_0, ADC_SampleTime_55_5Cycles);
-    ADC_ChannelConfig(ADC1, ADC_Channel_4, ADC_SampleTime_55_5Cycles);
-    ADC_ChannelConfig(ADC1, ADC_Channel_5, ADC_SampleTime_55_5Cycles);
+    LL_ADC_REG_SetSequencerChannels(ADC1, LL_ADC_CHANNEL_0);
+    LL_ADC_SetSamplingTimeCommonChannels(ADC1, LL_ADC_SAMPLINGTIME_55CYCLES_5);
+    LL_ADC_REG_SetSequencerChannels(ADC1, LL_ADC_CHANNEL_4);
+    LL_ADC_SetSamplingTimeCommonChannels(ADC1, LL_ADC_SAMPLINGTIME_55CYCLES_5);
+    LL_ADC_REG_SetSequencerChannels(ADC1, LL_ADC_CHANNEL_5);
+    LL_ADC_SetSamplingTimeCommonChannels(ADC1, LL_ADC_SAMPLINGTIME_55CYCLES_5);
 
-    ADC_OverrunModeCmd(ADC1,ENABLE);
+    LL_ADC_REG_SetOverrun(ADC1, LL_ADC_REG_OVR_DATA_OVERWRITTEN);
 
-    ADC_GetCalibrationFactor(ADC1);
-    ADC_DMARequestModeConfig(ADC1, ADC_DMAMode_Circular);
-    ADC_DMACmd(ADC1, ENABLE);
-    ADC_Cmd(ADC1, ENABLE);
-    while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADRDY));
+    LL_ADC_StartCalibration(ADC1);
+    while(LL_ADC_IsCalibrationOnGoing(ADC1) == 1);
+    (READ_BIT(ADC1->CR,ADC_CR_ADCAL) == RESET)?(LL_ADC_ReadReg(ADC1,DR)):(0);
+    LL_ADC_REG_SetDMATransfer(ADC1, LL_ADC_REG_DMA_TRANSFER_UNLIMITED);
+    LL_ADC_REG_SetDMATransfer(ADC1, LL_ADC_REG_DMA_TRANSFER_LIMITED);
+    LL_ADC_Enable(ADC1);
+    while(!LL_ADC_IsActiveFlag_ADRDY(ADC1));
 
     /* ADC1 regular Software Start Conv */
-    ADC_StartOfConversion(ADC1);
+    LL_ADC_REG_StartConversion(ADC1);
 }
 
 float motor_adc_get_voltage(void)

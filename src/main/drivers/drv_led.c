@@ -2,24 +2,27 @@
 
 void led_init(void)
 {
-    RCC_AHBPeriphClockCmd(LED_RED_PERIPHERAL | LED_GREEN_PERIPHERAL | LED_BLUE_PERIPHERAL, ENABLE);
+    LL_AHB1_GRP1_EnableClock(LED0_PERIPHERAL | LED1_PERIPHERAL | LED2_PERIPHERAL);
 
-    GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+    LL_GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_InitStructure.Mode = LL_GPIO_MODE_OUTPUT;
+    GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+    GPIO_InitStructure.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+    GPIO_InitStructure.Pull = LL_GPIO_PULL_NO;
 
-    GPIO_InitStructure.GPIO_Pin = LED_RED_PIN;
-    GPIO_Init(LED_RED_GPIO, &GPIO_InitStructure);
+    GPIO_InitStructure.Pin = LED0_PIN;
+    GPIO_InitStructure.Alternate = LL_GPIO_AF_0;
+    LL_GPIO_Init(LED0_GPIO, &GPIO_InitStructure);
 
-    GPIO_InitStructure.GPIO_Pin = LED_GREEN_PIN;
-    GPIO_Init(LED_GREEN_GPIO, &GPIO_InitStructure);
+    GPIO_InitStructure.Pin = LED1_PIN;
+    GPIO_InitStructure.Alternate = LL_GPIO_AF_0;
+    LL_GPIO_Init(LED1_GPIO, &GPIO_InitStructure);
 
-    GPIO_InitStructure.GPIO_Pin = LED_BLUE_PIN;
-    GPIO_Init(LED_BLUE_GPIO, &GPIO_InitStructure);
+    GPIO_InitStructure.Pin = LED2_PIN;
+    GPIO_InitStructure.Alternate = LL_GPIO_AF_0;
+    LL_GPIO_Init(LED2_GPIO, &GPIO_InitStructure);
 
-    LED_GREEN_OFF();
-    LED_BLUE_OFF();
-    LED_RED_OFF();
+    LED0_OFF();
+    LED1_OFF();
+    LED2_OFF();
 }

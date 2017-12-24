@@ -46,8 +46,6 @@ SRC_DIR         := $(ROOT)/src/main
 OBJECT_DIR      := $(ROOT)/obj/main
 BIN_DIR         := $(ROOT)/obj
 LIB_DIR         := $(ROOT)/lib/main
-INCLUDE_DIRS    := $(SRC_DIR) \
-                   $(ROOT)/src/main/target
 LINKER_DIR      := $(ROOT)/src/link
 STARTUP_DIR     := $(ROOT)/src/startup
 
@@ -87,8 +85,6 @@ FW_VER := $(FW_VER_MAJOR).$(FW_VER_MINOR).$(FW_VER_PATCH)
 # Search path for sources
 VPATH           := $(SRC_DIR):$(STARTUP_DIR)/startup:$(ROOT)/make:$(ROOT)/make/mcu
 
-CSOURCES        := $(shell find $(SRC_DIR) -name '*.c')
-
 LD_FLAGS        :=
 
 #
@@ -111,6 +107,8 @@ endif
 # start specific includes
 include $(ROOT)/make/mcu/$(TARGET_MCU).mk
 
+include $(ROOT)/make/source.mk
+
 # Configure default flash sizes for the targets (largest size specified gets hit first) if flash not specified already.
 ifeq ($(FLASH_SIZE),)
 ifneq ($(TARGET_FLASH),)
@@ -126,22 +124,9 @@ ifneq ($(HSE_VALUE),)
 DEVICE_FLAGS  := $(DEVICE_FLAGS) -DHSE_VALUE=$(HSE_VALUE)
 endif
 
-TARGET_DIR     = $(ROOT)/src/main/target/$(BASE_TARGET)
-TARGET_DIR_SRC = $(notdir $(wildcard $(TARGET_DIR)/*.c))
-
-ifeq ($(OPBL),yes)
-TARGET_FLAGS := -DOPBL $(TARGET_FLAGS)
-.DEFAULT_GOAL := binary
-else
 .DEFAULT_GOAL := hex
-endif
 
-INCLUDE_DIRS    := $(INCLUDE_DIRS) \
-                   $(TARGET_DIR)
-
-VPATH           := $(VPATH):$(TARGET_DIR)
-
-include $(ROOT)/make/source.mk
+#$(error $(SRC))
 
 ###############################################################################
 # Things that might need changing to use different tools

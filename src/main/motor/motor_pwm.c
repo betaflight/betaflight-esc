@@ -15,57 +15,58 @@ static void init_constants(uint16_t frequency, uint16_t pwm_dead_time_ns)
 static void init_timers(uint16_t pwm_dead_time_ns)
 {
     /* GPIOA and GPIOB clocks enable */
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB, ENABLE);
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA | LL_AHB1_GRP1_PERIPH_GPIOB);
 
     /* GPIOA Configuration: Channel 1, 2, 1N and 3 as alternate function push-pull */
-    GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
+    LL_GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_InitStructure.Pin = LL_GPIO_PIN_7 | LL_GPIO_PIN_8 | LL_GPIO_PIN_9 | LL_GPIO_PIN_10;
+    GPIO_InitStructure.Mode = LL_GPIO_MODE_ALTERNATE;
+    GPIO_InitStructure.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+    GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+    GPIO_InitStructure.Pull = LL_GPIO_PULL_NO;
+    GPIO_InitStructure.Alternate = LL_GPIO_AF_2;
+    LL_GPIO_Init(GPIOA, &GPIO_InitStructure);
 
     /* GPIOB Configuration: Channel 2N and 3N as alternate function push-pull */
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1;
-    GPIO_Init(GPIOB, &GPIO_InitStructure);
+    GPIO_InitStructure.Pin = LL_GPIO_PIN_0 | LL_GPIO_PIN_1;
+    LL_GPIO_Init(GPIOB, &GPIO_InitStructure);
 
     /* Connect TIM pins to AF2 */
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource7, GPIO_AF_2);
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource8, GPIO_AF_2);
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_2);
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource10,GPIO_AF_2);
-    GPIO_PinAFConfig(GPIOB, GPIO_PinSource0, GPIO_AF_2);
-    GPIO_PinAFConfig(GPIOB, GPIO_PinSource1, GPIO_AF_2);
+    LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_7, LL_GPIO_AF_2);
+    LL_GPIO_SetAFPin_8_15(GPIOA, LL_GPIO_PIN_8, LL_GPIO_AF_2);
+    LL_GPIO_SetAFPin_8_15(GPIOA, LL_GPIO_PIN_9, LL_GPIO_AF_2);
+    LL_GPIO_SetAFPin_8_15(GPIOA, LL_GPIO_PIN_10, LL_GPIO_AF_2);
+    LL_GPIO_SetAFPin_0_7(GPIOB, LL_GPIO_PIN_0, LL_GPIO_AF_2);
+    LL_GPIO_SetAFPin_0_7(GPIOB, LL_GPIO_PIN_1, LL_GPIO_AF_2);
 
     /* TIM1 clock enable */
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
+    LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_TIM1);
 
-    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-    TIM_TimeBaseStructure.TIM_Prescaler = 0;
-    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-    TIM_TimeBaseStructure.TIM_Period = _pwm_max;
-    TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-    TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
-    TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
+    LL_TIM_InitTypeDef TIM_TimeBaseStructure;
+    TIM_TimeBaseStructure.Prescaler = 0;
+    TIM_TimeBaseStructure.CounterMode = LL_TIM_COUNTERMODE_UP;
+    TIM_TimeBaseStructure.Autoreload = _pwm_max;
+    TIM_TimeBaseStructure.ClockDivision = 0;
+    TIM_TimeBaseStructure.RepetitionCounter = 0;
+    LL_TIM_Init(TIM1, &TIM_TimeBaseStructure);
 
-    TIM_OCInitTypeDef  TIM_OCInitStructure;
-    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
-    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-    TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
-    TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-    TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_High;
-    TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;
-    TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCNIdleState_Set;
-    TIM_OCInitStructure.TIM_Pulse = TIM1->ARR / 2;
+    LL_TIM_OC_InitTypeDef  TIM_OCInitStructure;
+    TIM_OCInitStructure.OCMode = LL_TIM_OCMODE_PWM1;
+    TIM_OCInitStructure.OCState = LL_TIM_OCSTATE_ENABLE;
+    TIM_OCInitStructure.OCNState = LL_TIM_OCSTATE_ENABLE;
+    TIM_OCInitStructure.OCPolarity = LL_TIM_OCPOLARITY_HIGH;
+    TIM_OCInitStructure.OCNPolarity = LL_TIM_OCPOLARITY_HIGH;
+    TIM_OCInitStructure.OCIdleState = LL_TIM_OCIDLESTATE_HIGH;
+    TIM_OCInitStructure.OCNIdleState = LL_TIM_OCIDLESTATE_HIGH;
+    TIM_OCInitStructure.CompareValue = TIM1->ARR / 2;
 
-    TIM_OC1Init(TIM1, &TIM_OCInitStructure);
-    TIM_OC2Init(TIM1, &TIM_OCInitStructure);
-    TIM_OC3Init(TIM1, &TIM_OCInitStructure);
+    LL_TIM_OC_Init(TIM1, LL_TIM_CHANNEL_CH1, &TIM_OCInitStructure);
+    LL_TIM_OC_Init(TIM1, LL_TIM_CHANNEL_CH2, &TIM_OCInitStructure);
+    LL_TIM_OC_Init(TIM1, LL_TIM_CHANNEL_CH3, &TIM_OCInitStructure);
 
-    TIM_OC1PreloadConfig(TIM1, TIM_OCPreload_Enable);
-    TIM_OC2PreloadConfig(TIM1, TIM_OCPreload_Enable);
-    TIM_OC3PreloadConfig(TIM1, TIM_OCPreload_Enable);
+    LL_TIM_OC_EnablePreload(TIM1, LL_TIM_CHANNEL_CH1);
+    LL_TIM_OC_EnablePreload(TIM1, LL_TIM_CHANNEL_CH2);
+    LL_TIM_OC_EnablePreload(TIM1, LL_TIM_CHANNEL_CH3);
 
     /*
      * Dead time generator setup.
@@ -79,26 +80,26 @@ static void init_timers(uint16_t pwm_dead_time_ns)
     }
 
     /* Automatic Output enable, Break, dead time and lock configuration*/
-    TIM_BDTRInitTypeDef TIM_BDTRInitStructure;
-    TIM_BDTRInitStructure.TIM_OSSRState = TIM_OSSRState_Enable;
-    TIM_BDTRInitStructure.TIM_OSSIState = TIM_OSSIState_Enable;
-    TIM_BDTRInitStructure.TIM_LOCKLevel = TIM_LOCKLevel_OFF;
-    TIM_BDTRInitStructure.TIM_DeadTime = dead_time_ticks;
-    TIM_BDTRInitStructure.TIM_Break = TIM_Break_Disable;
-    TIM_BDTRInitStructure.TIM_BreakPolarity = TIM_BreakPolarity_High;
-    TIM_BDTRInitStructure.TIM_AutomaticOutput = TIM_AutomaticOutput_Enable;
-    TIM_BDTRConfig(TIM1, &TIM_BDTRInitStructure);
+    LL_TIM_BDTR_InitTypeDef TIM_BDTRInitStructure;
+    TIM_BDTRInitStructure.OSSRState = LL_TIM_OSSR_ENABLE;
+    TIM_BDTRInitStructure.OSSIState = LL_TIM_OSSI_ENABLE;
+    TIM_BDTRInitStructure.LockLevel = LL_TIM_LOCKLEVEL_OFF;
+    TIM_BDTRInitStructure.DeadTime = dead_time_ticks;
+    TIM_BDTRInitStructure.BreakState = LL_TIM_BREAK_DISABLE;
+    TIM_BDTRInitStructure.BreakPolarity = LL_TIM_BREAK_POLARITY_HIGH;
+    TIM_BDTRInitStructure.AutomaticOutput = LL_TIM_AUTOMATICOUTPUT_ENABLE;
+    LL_TIM_BDTR_Init(TIM1, &TIM_BDTRInitStructure);
 
-    TIM_CCPreloadControl(TIM1, ENABLE);
-    TIM_ARRPreloadConfig(TIM1, ENABLE);
+    LL_TIM_CC_EnablePreload(TIM1);
+    LL_TIM_EnableARRPreload(TIM1);
 
-    TIM_GenerateEvent(TIM1, TIM_EventSource_Update | TIM_EventSource_COM);
+    LL_TIM_GenerateEvent_COM(TIM1);
 
     /* TIM1 counter enable */
-    TIM_Cmd(TIM1, ENABLE);
+    LL_TIM_EnableCounter(TIM1);
 
     /* Main Output Enable */
-    TIM_CtrlPWMOutputs(TIM1, ENABLE);
+    LL_TIM_EnableAllOutputs(TIM1);
 }
 
 void motor_pwm_init(void)
@@ -114,21 +115,21 @@ static inline void phase_reset_i(motorPhase_e phase)
 {
     switch(phase) {
     case PHASE_A:
-        TIM_SelectOCxM(TIM1, TIM_Channel_3, TIM_OCMode_Inactive);
-        TIM_CCxCmd(TIM1, TIM_Channel_3, TIM_CCx_Enable);
-        TIM_CCxNCmd(TIM1, TIM_Channel_3, TIM_CCxN_Disable);
+        LL_TIM_OC_SetMode(TIM1, LL_TIM_CHANNEL_CH3, LL_TIM_OCMODE_INACTIVE);
+        LL_TIM_CC_EnableChannel(TIM1, LL_TIM_CHANNEL_CH3);
+        LL_TIM_CC_DisableChannel(TIM1, LL_TIM_CHANNEL_CH3N);
         break;
 
     case PHASE_B:
-        TIM_SelectOCxM(TIM1, TIM_Channel_2, TIM_OCMode_Inactive);
-        TIM_CCxCmd(TIM1, TIM_Channel_2, TIM_CCx_Enable);
-        TIM_CCxNCmd(TIM1, TIM_Channel_2, TIM_CCxN_Disable);
+        LL_TIM_OC_SetMode(TIM1, LL_TIM_CHANNEL_CH2, LL_TIM_OCMODE_INACTIVE);
+        LL_TIM_CC_EnableChannel(TIM1, LL_TIM_CHANNEL_CH2);
+        LL_TIM_CC_DisableChannel(TIM1, LL_TIM_CHANNEL_CH2N);
         break;
 
     case PHASE_C:
-        TIM_SelectOCxM(TIM1, TIM_Channel_1, TIM_OCMode_Inactive);
-        TIM_CCxCmd(TIM1, TIM_Channel_1, TIM_CCx_Enable);
-        TIM_CCxNCmd(TIM1, TIM_Channel_1, TIM_CCxN_Disable);
+        LL_TIM_OC_SetMode(TIM1, LL_TIM_CHANNEL_CH1, LL_TIM_OCMODE_INACTIVE);
+        LL_TIM_CC_EnableChannel(TIM1, LL_TIM_CHANNEL_CH1);
+        LL_TIM_CC_DisableChannel(TIM1, LL_TIM_CHANNEL_CH1N);
         break;
 
     default:
@@ -144,24 +145,24 @@ static inline void phase_set_i(motorPhase_e phase, uint_fast16_t pwm_val, bool i
 {
     switch(phase) {
     case PHASE_A:
-        TIM_SetCompare3(TIM1, pwm_val);
-        TIM_SelectOCxM(TIM1, TIM_Channel_3, isPWMInput ? TIM_OCMode_PWM1 : TIM_OCMode_Inactive);
-        TIM_CCxCmd(TIM1, TIM_Channel_3, TIM_CCx_Enable);
-        TIM_CCxNCmd(TIM1, TIM_Channel_3, TIM_CCxN_Enable);
+        LL_TIM_OC_SetCompareCH3(TIM1, pwm_val);
+        LL_TIM_OC_SetMode(TIM1, LL_TIM_CHANNEL_CH3, isPWMInput ? LL_TIM_OCMODE_PWM1 : LL_TIM_OCMODE_INACTIVE);
+        LL_TIM_CC_EnableChannel(TIM1, LL_TIM_CHANNEL_CH3);
+        LL_TIM_CC_EnableChannel(TIM1, LL_TIM_CHANNEL_CH3N);
         break;
 
     case PHASE_B:
-        TIM_SetCompare2(TIM1, pwm_val);
-        TIM_SelectOCxM(TIM1, TIM_Channel_2, isPWMInput ? TIM_OCMode_PWM1 : TIM_OCMode_Inactive);
-        TIM_CCxCmd(TIM1, TIM_Channel_2, TIM_CCx_Enable);
-        TIM_CCxNCmd(TIM1, TIM_Channel_2, TIM_CCxN_Enable);
+        LL_TIM_OC_SetCompareCH2(TIM1, pwm_val);
+        LL_TIM_OC_SetMode(TIM1, LL_TIM_CHANNEL_CH2, isPWMInput ? LL_TIM_OCMODE_PWM1 : LL_TIM_OCMODE_INACTIVE);
+        LL_TIM_CC_EnableChannel(TIM1, LL_TIM_CHANNEL_CH2);
+        LL_TIM_CC_EnableChannel(TIM1, LL_TIM_CHANNEL_CH2N);
         break;
 
     case PHASE_C:
-        TIM_SetCompare1(TIM1, pwm_val);
-        TIM_SelectOCxM(TIM1, TIM_Channel_1, isPWMInput ? TIM_OCMode_PWM1 : TIM_OCMode_Inactive);
-        TIM_CCxCmd(TIM1, TIM_Channel_1, TIM_CCx_Enable);
-        TIM_CCxNCmd(TIM1, TIM_Channel_1, TIM_CCxN_Enable);
+        LL_TIM_OC_SetCompareCH1(TIM1, pwm_val);
+        LL_TIM_OC_SetMode(TIM1, LL_TIM_CHANNEL_CH1, isPWMInput ? LL_TIM_OCMODE_PWM1 : LL_TIM_OCMODE_INACTIVE);
+        LL_TIM_CC_EnableChannel(TIM1, LL_TIM_CHANNEL_CH1);
+        LL_TIM_CC_EnableChannel(TIM1, LL_TIM_CHANNEL_CH1N);
         break;
 
     default:
@@ -171,42 +172,42 @@ static inline void phase_set_i(motorPhase_e phase, uint_fast16_t pwm_val, bool i
 
 static inline void motor_pwm_stop(void)
 {
-    TIM_SetCompare1(TIM1, _pwm_mid);
-    TIM_SetCompare2(TIM1, _pwm_mid);
-    TIM_SetCompare3(TIM1, _pwm_mid);
+    LL_TIM_OC_SetCompareCH1(TIM1, _pwm_mid);
+    LL_TIM_OC_SetCompareCH2(TIM1, _pwm_mid);
+    LL_TIM_OC_SetCompareCH3(TIM1, _pwm_mid);
 
-    TIM_SelectOCxM(TIM1, TIM_Channel_1, TIM_ForcedAction_InActive);
-    TIM_CCxCmd(TIM1, TIM_Channel_1, TIM_CCx_Enable);
-    TIM_CCxNCmd(TIM1, TIM_Channel_1, TIM_CCxN_Disable);
+    LL_TIM_OC_SetMode(TIM1, LL_TIM_CHANNEL_CH1, LL_TIM_OCMODE_FORCED_INACTIVE);
+    LL_TIM_CC_EnableChannel(TIM1, LL_TIM_CHANNEL_CH1);
+    LL_TIM_CC_DisableChannel(TIM1, LL_TIM_CHANNEL_CH1N);
 
-    TIM_SelectOCxM(TIM1, TIM_Channel_2, TIM_ForcedAction_InActive);
-    TIM_CCxCmd(TIM1, TIM_Channel_2, TIM_CCx_Enable);
-    TIM_CCxNCmd(TIM1, TIM_Channel_2, TIM_CCxN_Disable);
+    LL_TIM_OC_SetMode(TIM1, LL_TIM_CHANNEL_CH2, LL_TIM_OCMODE_FORCED_INACTIVE);
+    LL_TIM_CC_EnableChannel(TIM1, LL_TIM_CHANNEL_CH2);
+    LL_TIM_CC_DisableChannel(TIM1, LL_TIM_CHANNEL_CH2N);
 
-    TIM_SelectOCxM(TIM1, TIM_Channel_3, TIM_ForcedAction_InActive);
-    TIM_CCxCmd(TIM1, TIM_Channel_3, TIM_CCx_Enable);
-    TIM_CCxNCmd(TIM1, TIM_Channel_3, TIM_CCxN_Disable);
+    LL_TIM_OC_SetMode(TIM1, LL_TIM_CHANNEL_CH3, LL_TIM_OCMODE_FORCED_INACTIVE);
+    LL_TIM_CC_EnableChannel(TIM1, LL_TIM_CHANNEL_CH3);
+    LL_TIM_CC_DisableChannel(TIM1, LL_TIM_CHANNEL_CH3N);
 
     /* Generate TIM1 COM event by software */
-    TIM_GenerateEvent(TIM1, TIM_EventSource_COM);
+    LL_TIM_GenerateEvent_COM(TIM1);
 }
 
 static void motor_pwm_brake(void)
 {
-    TIM_SelectOCxM(TIM1, TIM_Channel_1, TIM_ForcedAction_InActive);
-    TIM_CCxCmd(TIM1, TIM_Channel_1, TIM_CCx_Enable);
-    TIM_CCxNCmd(TIM1, TIM_Channel_1, TIM_CCxN_Enable);
+    LL_TIM_OC_SetMode(TIM1, LL_TIM_CHANNEL_CH1, LL_TIM_OCMODE_FORCED_INACTIVE);
+    LL_TIM_CC_EnableChannel(TIM1, LL_TIM_CHANNEL_CH1);
+    LL_TIM_CC_EnableChannel(TIM1, LL_TIM_CHANNEL_CH1N);
 
-    TIM_SelectOCxM(TIM1, TIM_Channel_2, TIM_ForcedAction_InActive);
-    TIM_CCxCmd(TIM1, TIM_Channel_2, TIM_CCx_Enable);
-    TIM_CCxNCmd(TIM1, TIM_Channel_2, TIM_CCxN_Enable);
+    LL_TIM_OC_SetMode(TIM1, LL_TIM_CHANNEL_CH2, LL_TIM_OCMODE_FORCED_INACTIVE);
+    LL_TIM_CC_EnableChannel(TIM1, LL_TIM_CHANNEL_CH2);
+    LL_TIM_CC_EnableChannel(TIM1, LL_TIM_CHANNEL_CH2N);
 
-    TIM_SelectOCxM(TIM1, TIM_Channel_3, TIM_ForcedAction_InActive);
-    TIM_CCxCmd(TIM1, TIM_Channel_3, TIM_CCx_Enable);
-    TIM_CCxNCmd(TIM1, TIM_Channel_3, TIM_CCxN_Enable);
+    LL_TIM_OC_SetMode(TIM1, LL_TIM_CHANNEL_CH3, LL_TIM_OCMODE_FORCED_INACTIVE);
+    LL_TIM_CC_EnableChannel(TIM1, LL_TIM_CHANNEL_CH3);
+    LL_TIM_CC_EnableChannel(TIM1, LL_TIM_CHANNEL_CH3N);
 
     /* Generate TIM1 COM event by software */
-    TIM_GenerateEvent(TIM1, TIM_EventSource_COM);
+    LL_TIM_GenerateEvent_COM(TIM1);
 }
 
 void motor_pwm_manip(const enum motor_pwm_phase_manip command[MOTOR_NUM_PHASES])
@@ -290,7 +291,7 @@ void motor_pwm_set_step_and_pwm(const struct motor_pwm_commutation_step* step, i
     phase_set_i(step->positive, pwm_val, true);
     phase_set_i(step->negative, pwm_val, false);
     /* Generate TIM1 COM event by software */
-    TIM_GenerateEvent(TIM1, TIM_EventSource_COM);
+    LL_TIM_GenerateEvent_COM(TIM1);
 }
 
 void motor_pwm_beep(int frequency, int duration_msec)
