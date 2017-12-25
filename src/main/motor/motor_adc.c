@@ -1,9 +1,5 @@
 #include "include.h"
 
-#include "stm32f0xx_ll_gpio.h"
-#include "stm32f0xx_ll_dma.h"
-#include "stm32f0xx_ll_adc.h"
-
 #define LOWPASS(xold, xnew, alpha_rcpr) \
     (((xold) * (alpha_rcpr) + (xnew) + (((alpha_rcpr) + 1) / 2)) / ((alpha_rcpr) + 1))
 
