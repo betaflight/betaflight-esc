@@ -45,11 +45,12 @@
 
 #include "irq.h"
 
-#include "drivers/multi_timer.h"
+#include "drivers/drv_scheduler.h"
 #include "drivers/drv_system.h"
 #include "drivers/drv_uart.h"
 #include "drivers/drv_led.h"
 #include "drivers/drv_watchdog.h"
+#include "drivers/drv_ws2812.h"
 
 #include "motor/motor_adc.h"
 #include "motor/motor_comparator.h"
@@ -59,6 +60,7 @@
 #include "motor/motor_timer.h"
 #include "motor/motor_rtctl.h"
 #include "motor/motor_rtctl_test.h"
+#include "motor/motor_beeper.h"
 
 #include "control/rpmctl.h"
 #include "control/control.h"

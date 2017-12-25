@@ -20,7 +20,8 @@ COMMON_SRC           = \
                     drivers/drv_system.c \
                     drivers/drv_uart.c \
                     drivers/drv_watchdog.c \
-                    drivers/multi_timer.c \
+                    drivers/drv_scheduler.c \
+                    drivers/drv_ws2812.c \
                     motor/motor_adc.c \
                     motor/motor_comparator.c \
                     motor/motor_pwm.c \
@@ -28,6 +29,7 @@ COMMON_SRC           = \
                     motor/motor_rtctl_test.c \
                     motor/motor_signal.c \
                     motor/motor_telemetry.c \
+                    motor/motor_beeper.c \
                     motor/motor_timer.c
 
 VPATH               := $(VPATH):$(SRC_DIR)
