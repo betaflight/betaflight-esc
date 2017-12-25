@@ -1,5 +1,23 @@
 #pragma once
 
+#define AFetHiOff()			LL_GPIO_ResetOutputPin(A_FET_HI_GPIO, A_FET_HI_PIN);
+#define AFetHiOn()			LL_GPIO_SetOutputPin(A_FET_HI_GPIO, A_FET_HI_PIN);
+
+#define BFetHiOff()			LL_GPIO_ResetOutputPin(B_FET_HI_GPIO, B_FET_HI_PIN);
+#define BFetHiOn()			LL_GPIO_SetOutputPin(B_FET_HI_GPIO, B_FET_HI_PIN);
+
+#define CFetHiOff()			LL_GPIO_ResetOutputPin(C_FET_HI_GPIO, C_FET_HI_PIN);
+#define CFetHiOn()			LL_GPIO_SetOutputPin(C_FET_HI_GPIO, C_FET_HI_PIN);
+
+#define AFetLoOff()			LL_GPIO_ResetOutputPin(A_FET_LO_GPIO, A_FET_LO_PIN);
+#define AFetLoOn()			LL_GPIO_SetOutputPin(A_FET_LO_GPIO, A_FET_LO_PIN);
+
+#define BFetLoOff()			LL_GPIO_ResetOutputPin(B_FET_LO_GPIO, B_FET_LO_PIN);
+#define BFetLoOn()			LL_GPIO_SetOutputPin(B_FET_LO_GPIO, B_FET_LO_PIN);
+
+#define CFetLoOff()			LL_GPIO_ResetOutputPin(C_FET_LO_GPIO, C_FET_LO_PIN);
+#define CFetLoOn()			LL_GPIO_SetOutputPin(C_FET_LO_GPIO, C_FET_LO_PIN);
+
 typedef enum {
     PHASE_A = 0,
     PHASE_B = 1,
