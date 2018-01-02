@@ -23,80 +23,66 @@ void update_voltage_current_temperate(void)
 
 void motor_adc_init(void)
 {
-    /* GPIOA Periph clock enable */
     LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
-
-    /* ADC1 Periph clock enable */
     LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_ADC1);
 
-    /* Configure ADC Channel3 and channel6 as analog input */
-    LL_GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_InitStructure.Pin = LL_GPIO_PIN_3 | LL_GPIO_PIN_6 | LL_GPIO_PIN_0 | LL_GPIO_PIN_4 | LL_GPIO_PIN_5;
-    GPIO_InitStructure.Mode = LL_GPIO_MODE_ANALOG;
-    GPIO_InitStructure.Pull = LL_GPIO_PULL_NO ;
-    GPIO_InitStructure.Alternate = LL_GPIO_AF_0;
-    LL_GPIO_Init(GPIOA, &GPIO_InitStructure);
+    LL_GPIO_InitTypeDef gpioInit;
+    gpioInit.Pin = LL_GPIO_PIN_3 | LL_GPIO_PIN_6 | LL_GPIO_PIN_0 | LL_GPIO_PIN_4 | LL_GPIO_PIN_5;
+    gpioInit.Mode = LL_GPIO_MODE_ANALOG;
+    gpioInit.Pull = LL_GPIO_PULL_NO ;
+    gpioInit.Alternate = LL_GPIO_AF_0;
+    LL_GPIO_Init(GPIOA, &gpioInit);
 
-    /* DMA1 clock enable */
     LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
-    /* DMA1 Channel1 Config */
+
     LL_DMA_DeInit(DMA1, LL_DMA_CHANNEL_1);
-    LL_DMA_InitTypeDef DMA_InitStructure;
-    DMA_InitStructure.PeriphOrM2MSrcAddress = (uint32_t)&ADC1->DR;
-    DMA_InitStructure.MemoryOrM2MDstAddress = (uint32_t)adcValues;
-    DMA_InitStructure.Direction = LL_DMA_DIRECTION_PERIPH_TO_MEMORY;
-    DMA_InitStructure.NbData = 6;
-    DMA_InitStructure.PeriphOrM2MSrcIncMode = LL_DMA_PERIPH_NOINCREMENT;
-    DMA_InitStructure.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
-    DMA_InitStructure.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_HALFWORD;
-    DMA_InitStructure.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_HALFWORD;
-    DMA_InitStructure.Mode = LL_DMA_MODE_CIRCULAR;
-    DMA_InitStructure.Priority = LL_DMA_PRIORITY_HIGH;
-    LL_DMA_Init(DMA1, LL_DMA_CHANNEL_1, &DMA_InitStructure);
-    /* DMA1 Channel1 enable */
+    LL_DMA_InitTypeDef dmaInit;
+    dmaInit.PeriphOrM2MSrcAddress = (uint32_t)&ADC1->DR;
+    dmaInit.MemoryOrM2MDstAddress = (uint32_t)adcValues;
+    dmaInit.Direction = LL_DMA_DIRECTION_PERIPH_TO_MEMORY;
+    dmaInit.NbData = 6;
+    dmaInit.PeriphOrM2MSrcIncMode = LL_DMA_PERIPH_NOINCREMENT;
+    dmaInit.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
+    dmaInit.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_HALFWORD;
+    dmaInit.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_HALFWORD;
+    dmaInit.Mode = LL_DMA_MODE_CIRCULAR;
+    dmaInit.Priority = LL_DMA_PRIORITY_HIGH;
+    LL_DMA_Init(DMA1, LL_DMA_CHANNEL_1, &dmaInit);
     LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_1);
 
-    /* ADC1 DeInit */
     LL_ADC_CommonDeInit(__LL_ADC_COMMON_INSTANCE(ADC1));
-    /* Initialize ADC structure */
-    LL_ADC_InitTypeDef ADC_InitStructure;
-    LL_ADC_StructInit(&ADC_InitStructure);
 
-    /* Configure the ADC1 in continuous mode withe a resolution equal to 12 bits  */
-    ADC_InitStructure.Resolution = LL_ADC_RESOLUTION_12B;
-    //ADC_InitStructure.ContinuousConvMode = ENABLE;
-    //ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
-    ADC_InitStructure.DataAlignment = LL_ADC_DATA_ALIGN_RIGHT;
-    //ADC_InitStructure.ScanDirection = ADC_ScanDirection_Upward;
-    LL_ADC_Init(ADC1, &ADC_InitStructure);
-
-    /* Convert the ADC1 Channel3 and channel6 with 55.5 Cycles as sampling time */
     LL_ADC_REG_SetSequencerChannels(ADC1, LL_ADC_CHANNEL_3);
-    LL_ADC_SetSamplingTimeCommonChannels(ADC1, LL_ADC_SAMPLINGTIME_55CYCLES_5);
     LL_ADC_REG_SetSequencerChannels(ADC1, LL_ADC_CHANNEL_6);
-    LL_ADC_SetSamplingTimeCommonChannels(ADC1, LL_ADC_SAMPLINGTIME_55CYCLES_5);
     LL_ADC_REG_SetSequencerChannels(ADC1, LL_ADC_CHANNEL_TEMPSENSOR);
-    LL_ADC_SetSamplingTimeCommonChannels(ADC1, LL_ADC_SAMPLINGTIME_55CYCLES_5);
     LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(ADC1), LL_ADC_PATH_INTERNAL_TEMPSENSOR);
-
     LL_ADC_REG_SetSequencerChannels(ADC1, LL_ADC_CHANNEL_0);
-    LL_ADC_SetSamplingTimeCommonChannels(ADC1, LL_ADC_SAMPLINGTIME_55CYCLES_5);
     LL_ADC_REG_SetSequencerChannels(ADC1, LL_ADC_CHANNEL_4);
-    LL_ADC_SetSamplingTimeCommonChannels(ADC1, LL_ADC_SAMPLINGTIME_55CYCLES_5);
     LL_ADC_REG_SetSequencerChannels(ADC1, LL_ADC_CHANNEL_5);
     LL_ADC_SetSamplingTimeCommonChannels(ADC1, LL_ADC_SAMPLINGTIME_55CYCLES_5);
 
-    LL_ADC_REG_SetOverrun(ADC1, LL_ADC_REG_OVR_DATA_OVERWRITTEN);
+    LL_ADC_InitTypeDef adcInit;
+    LL_ADC_StructInit(&adcInit);
+    adcInit.Resolution = LL_ADC_RESOLUTION_12B;
+    adcInit.DataAlignment = LL_ADC_DATA_ALIGN_RIGHT;
+    adcInit.LowPowerMode = LL_ADC_LP_MODE_NONE;
+    LL_ADC_Init(ADC1, &adcInit);
+    LL_ADC_SetClock(ADC1, LL_ADC_CLOCK_ASYNC);
 
+    LL_ADC_REG_InitTypeDef adcRegInit;
+    adcRegInit.TriggerSource = LL_ADC_REG_TRIG_SOFTWARE;
+    adcRegInit.SequencerDiscont = LL_ADC_REG_SEQ_DISCONT_DISABLE;
+    adcRegInit.ContinuousMode = LL_ADC_REG_CONV_CONTINUOUS;
+    adcRegInit.DMATransfer = LL_ADC_REG_DMA_TRANSFER_UNLIMITED;
+    adcRegInit.Overrun = LL_ADC_REG_OVR_DATA_OVERWRITTEN;
+    LL_ADC_REG_Init(ADC1, &adcRegInit);
+    
     LL_ADC_StartCalibration(ADC1);
     while(LL_ADC_IsCalibrationOnGoing(ADC1) == 1);
-    (READ_BIT(ADC1->CR,ADC_CR_ADCAL) == RESET)?(LL_ADC_ReadReg(ADC1,DR)):(0);
-    LL_ADC_REG_SetDMATransfer(ADC1, LL_ADC_REG_DMA_TRANSFER_UNLIMITED);
-    LL_ADC_REG_SetDMATransfer(ADC1, LL_ADC_REG_DMA_TRANSFER_LIMITED);
+
     LL_ADC_Enable(ADC1);
     while(!LL_ADC_IsActiveFlag_ADRDY(ADC1));
 
-    /* ADC1 regular Software Start Conv */
     LL_ADC_REG_StartConversion(ADC1);
 }
 
