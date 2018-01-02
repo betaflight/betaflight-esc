@@ -27,7 +27,7 @@ void motor_adc_init(void)
     LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_ADC1);
 
     LL_GPIO_InitTypeDef gpioInit;
-    gpioInit.Pin = LL_GPIO_PIN_3 | LL_GPIO_PIN_6 | LL_GPIO_PIN_0 | LL_GPIO_PIN_4 | LL_GPIO_PIN_5;
+    gpioInit.Pin = LL_GPIO_PIN_0 | LL_GPIO_PIN_3 | LL_GPIO_PIN_4 | LL_GPIO_PIN_5 | LL_GPIO_PIN_6;
     gpioInit.Mode = LL_GPIO_MODE_ANALOG;
     gpioInit.Pull = LL_GPIO_PULL_NO ;
     gpioInit.Alternate = LL_GPIO_AF_0;
@@ -63,11 +63,11 @@ void motor_adc_init(void)
 
     LL_ADC_InitTypeDef adcInit;
     LL_ADC_StructInit(&adcInit);
+    adcInit.Clock = LL_ADC_CLOCK_ASYNC;
     adcInit.Resolution = LL_ADC_RESOLUTION_12B;
     adcInit.DataAlignment = LL_ADC_DATA_ALIGN_RIGHT;
     adcInit.LowPowerMode = LL_ADC_LP_MODE_NONE;
     LL_ADC_Init(ADC1, &adcInit);
-    LL_ADC_SetClock(ADC1, LL_ADC_CLOCK_ASYNC);
 
     LL_ADC_REG_InitTypeDef adcRegInit;
     adcRegInit.TriggerSource = LL_ADC_REG_TRIG_SOFTWARE;
