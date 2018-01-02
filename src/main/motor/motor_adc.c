@@ -59,7 +59,6 @@ void motor_adc_init(void)
     LL_ADC_REG_SetSequencerChannels(ADC1, LL_ADC_CHANNEL_0);
     LL_ADC_REG_SetSequencerChannels(ADC1, LL_ADC_CHANNEL_4);
     LL_ADC_REG_SetSequencerChannels(ADC1, LL_ADC_CHANNEL_5);
-    LL_ADC_SetSamplingTimeCommonChannels(ADC1, LL_ADC_SAMPLINGTIME_55CYCLES_5);
 
     LL_ADC_InitTypeDef adcInit;
     LL_ADC_StructInit(&adcInit);
@@ -77,6 +76,9 @@ void motor_adc_init(void)
     adcRegInit.Overrun = LL_ADC_REG_OVR_DATA_OVERWRITTEN;
     LL_ADC_REG_Init(ADC1, &adcRegInit);
     
+    LL_ADC_REG_SetSequencerScanDirection(ADC1, LL_ADC_REG_SEQ_SCAN_DIR_FORWARD);
+    LL_ADC_SetSamplingTimeCommonChannels(ADC1, LL_ADC_SAMPLINGTIME_55CYCLES_5);
+
     LL_ADC_StartCalibration(ADC1);
     while(LL_ADC_IsCalibrationOnGoing(ADC1) == 1);
 
