@@ -54,6 +54,10 @@ STARTUP_DIR     := $(ROOT)/src/startup
 ##                     V=1 High
 include $(ROOT)/make/build_verbosity.mk
 
+# Build tools, so we all share the same versions
+# import macros common to all supported build systems
+include $(ROOT)/make/system-id.mk
+
 # developer preferences, edit these at will, they'll be gitignored
 -include $(ROOT)/make/local.mk
 
@@ -66,6 +70,10 @@ DL_DIR    := $(ROOT)/downloads
 
 export RM := rm
 
+# include the tools makefile
+include $(ROOT)/make/tools.mk
+
+    
 # default xtal value for targets
 HSE_VALUE       ?= 8000000
 
@@ -325,9 +333,15 @@ hex:
 	$(V0) $(MAKE) -j $(TARGET_HEX)
 
 # mkdirs
-$(BUILD_DIR):
+$(DL_DIR):
 	mkdir -p $@
 
+$(TOOLS_DIR):
+	mkdir -p $@
+
+$(BUILD_DIR):
+	mkdir -p $@
+    
 ## version           : print firmware version
 version:
 	@echo $(FW_VER)
