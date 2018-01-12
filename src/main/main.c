@@ -30,7 +30,23 @@ struct Timer timerLedUpdate;
 
 void timer_led_callback(void)
 {
-    LED0_TOGGLE();
+    static int i = 0; 
+    if (i & 0x1) {
+        LED0_ON(); 
+    } else {
+        LED0_OFF();
+    }
+    if (i & 0x2) {
+        LED1_ON(); 
+    } else {
+        LED1_OFF();
+    }
+    if (i & 0x4) {
+        LED2_ON(); 
+    } else {
+        LED2_OFF();
+    }
+    i++;
 }
 
 int main(void)
@@ -57,7 +73,7 @@ int main(void)
 
     motor_adc_init();
 
-    timer_init(&timerLedUpdate, timer_led_callback, 0, 100);
+    timer_init(&timerLedUpdate, timer_led_callback, 0, 500);
     timer_start(&timerLedUpdate);
 
     while(1) {
