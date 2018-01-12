@@ -65,7 +65,7 @@ void SysTick_Handler(void)
 
 void system_init(void)
 {
-	SystemClock_Config();
+    SystemClock_Config();
     SysTick_Config(SystemCoreClock / 1000);
 }
 
