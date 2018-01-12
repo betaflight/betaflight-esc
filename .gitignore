@@ -54,3 +54,5 @@ dkms.conf
 /obj/
 /make/local.mk
 .vscode/
+downloads/
+tools/
