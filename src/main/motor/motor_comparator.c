@@ -14,7 +14,7 @@ void ADC1_COMP_IRQHandler(void)
 {
     if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_21) != RESET) {
         LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_21);
-        motor_comparator_zc_callback(LL_COMP_GetPowerMode(COMP1) == LL_COMP_OUTPUT_LEVEL_HIGH);
+        // motor_comparator_zc_callback(LL_COMP_GetPowerMode(COMP1) == LL_COMP_OUTPUT_LEVEL_HIGH);
     }
 }
 

@@ -30,7 +30,7 @@ void TIM14_IRQHandler(void)
         if (_remaining_ticks <= (MAX_FREQUENCY / 1000000)) {// MIN_REMAINING_TICKS
             LL_TIM_DisableIT_CC1(TIM14);// Disable this compare match 
             const uint64_t timestamp = motor_timer_hnsec() - 2;
-            motor_timer_callback(timestamp);
+            // motor_timer_callback(timestamp);
         } else {
             if (_remaining_ticks >= TICKS_PER_OVERFLOW) {
                 // We don't need to re-configure the CCR register - the value won't change

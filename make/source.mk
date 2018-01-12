@@ -14,8 +14,6 @@ COMMON_SRC           = \
                     main.c \
                     config/config.c \
                     config/config_eeprom.c \
-                    control/control.c \
-                    control/rpmctl.c \
                     drivers/drv_led.c \
                     drivers/drv_system.c \
                     drivers/drv_uart.c \
