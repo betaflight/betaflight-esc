@@ -1,6 +1,6 @@
 F0_TARGETS  := $(TARGET)
 
-FLASH_SIZE  := 64
+FLASH_SIZE  := 32
 STM_CHIP    := stm32f051x8
 
 TARGET_SRC  := \
