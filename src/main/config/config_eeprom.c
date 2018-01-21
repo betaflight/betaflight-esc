@@ -6,15 +6,6 @@
 #define FLASH_TO_RESERVE_FOR_CONFIG     0x800
 #define CONFIG_START_FLASH_ADDRESS      (0x08000000 + (uint32_t)((FLASH_PAGE_SIZE * FLASH_PAGE_COUNT) - FLASH_TO_RESERVE_FOR_CONFIG))
 
-typedef enum
-{
-  FLASH_BUSY = 1,
-  FLASH_ERROR_WRP,
-  FLASH_ERROR_PROGRAM,
-  FLASH_COMPLETE,
-  FLASH_TIMEOUT
-} FLASH_Status;
-
 static uint8_t calculateChecksum(const uint8_t *data, uint32_t length)
 {
     uint8_t checksum = 0;

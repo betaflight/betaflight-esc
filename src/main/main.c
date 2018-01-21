@@ -63,10 +63,6 @@ int main(void)
 
     led_init();
 
-    motor_signal_init();
-
-    motor_timer_init();
-
     motor_pwm_init();
 
     motor_comparator_init();

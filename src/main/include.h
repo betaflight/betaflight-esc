@@ -63,9 +63,6 @@
 #include "motor/motor_rtctl_test.h"
 #include "motor/motor_beeper.h"
 
-#include "control/rpmctl.h"
-#include "control/control.h"
-
 #include "config/config.h"
 #include "config/config_master.h"
 #include "config/config_eeprom.h"
