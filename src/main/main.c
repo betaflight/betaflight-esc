@@ -17,37 +17,30 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "include.h"
+
+#include "config/cli.h"
+
 #include "drivers/drv_led.h"
+#include "drivers/drv_uart.h"
 
 void _init(void)
 {
     //SystemInit();
 }
 
-struct Timer timerLedUpdate;
+struct Timer ledTimer;
+struct Timer consoleTimer;
 
 void timer_led_callback(void)
 {
-    static int i = 0; 
-    if (i & 0x1) {
-        LED0_ON(); 
-    } else {
-        LED0_OFF();
-    }
-    if (i & 0x2) {
-        LED1_ON(); 
-    } else {
-        LED1_OFF();
-    }
-    if (i & 0x4) {
-        LED2_ON(); 
-    } else {
-        LED2_OFF();
-    }
-    i++;
+    
 }
+
+
 
 int main(void)
 {
@@ -55,23 +48,31 @@ int main(void)
     SystemCoreClockUpdate();
     
     system_init();
-
+    
     serialInit();
 
     ensureEEPROMContainsValidData();
     readEEPROM();
 
     led_init();
+    //motor_signal_init();
 
     motor_pwm_init();
 
-    motor_comparator_init();
+    //motor_comparator_init();
 
     motor_adc_init();
+    printf("%s %d.%d.%d\r\n", FW_FIRMWARE_NAME, FW_VERSION_MAJOR, FW_VERSION_MINOR, FW_VERSION_PATCH_LEVEL);
+    printf("Build time %s %s\r\n",__DATE__, __TIME__ );
 
-    timer_init(&timerLedUpdate, timer_led_callback, 0, 500);
-    timer_start(&timerLedUpdate);
 
+
+    timer_init(&ledTimer, timer_led_callback, 0, 500);
+    timer_start(&ledTimer);
+
+    timer_init(&consoleTimer, cliProcess, 0, 100);
+    timer_start(&consoleTimer);
+    LED0_ON();
     while(1) {
         timer_loop();
     }

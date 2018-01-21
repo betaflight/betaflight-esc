@@ -3,13 +3,13 @@
 #include "stm32f0xx_ll_dma.h"
 #include "stm32f0xx_ll_gpio.h"
 
-int fputc(int ch, FILE *f)
+int _write (int fd, char *ptr, int len)
 {
-    UNUSED(f);
-    
-    // let DMA catch up a bit when using set or dump, we're too fast.
-    serialWrite(ch);
-    return ch;
+    UNUSED(fd);
+    for (int i = 0; i < len; i++) {
+        serialWrite(*(ptr)++);
+    }
+    return len;
 }
 
 static serialPort_t serialPort;
@@ -30,7 +30,7 @@ static void serialStartTxDMA(void)
     LL_DMA_EnableChannel(DMA1, USART_TX_DMA_CHANNEL);
 }
 
-void serialWrite(int ch)
+void serialWrite(char ch)
 {
     serialPort_t *s = &serialPort;
 
@@ -47,11 +47,11 @@ bool serialAvailable(void)
     return (LL_DMA_GetDataLength(DMA1, USART_RX_DMA_CHANNEL) != serialPort.rxPos);
 }
 
-int serialRead(void)
+char serialRead(void)
 {
     serialPort_t *s = &serialPort;
 
-    int ch = s->rxBuf[SERIAL_RX_BUFSIZE - s->rxPos];
+    char ch = s->rxBuf[SERIAL_RX_BUFSIZE - s->rxPos];
 
     if (--s->rxPos == 0) {
         s->rxPos = SERIAL_RX_BUFSIZE;
@@ -62,8 +62,9 @@ int serialRead(void)
 
 void serialPrint(const char *str)
 {
-    while (*str) {
-        serialWrite(*(str++));
+    char ch;
+    while ((ch = *(str++)) != 0) {
+        serialWrite(ch);
     }
 }
 

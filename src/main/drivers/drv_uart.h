@@ -1,5 +1,8 @@
 #pragma once
 
+#include "stdint.h"
+#include "stdbool.h"
+
 #define USART                           USART1
 #define USART_IRQn                      USART1_IRQn
 #define USART_IRQHandler                USART1_IRQHandler
@@ -24,17 +27,18 @@
 #define SERIAL_RX_BUFSIZE   256
 
 typedef struct {
-    volatile unsigned char txBuf[SERIAL_TX_BUFSIZE];
-    unsigned int txHead, txTail;
+    volatile char txBuf[SERIAL_TX_BUFSIZE];
+    uint16_t  txHead, txTail;
 
-    volatile unsigned char rxBuf[SERIAL_RX_BUFSIZE];
-    volatile unsigned int rxHead, rxTail;
+    volatile char rxBuf[SERIAL_RX_BUFSIZE];
+    volatile uint16_t rxHead, rxTail;
 
     unsigned int rxPos;
 } serialPort_t;
 
 void serialInit(void);
-void serialWrite(int ch);
-void serialPrint(const char *str);
+void serialWrite(char ch);
+void serialPrint(const char  *str);
 bool serialAvailable(void);
-int serialRead(void);
+char serialRead(void);
+int _write (int fd, char *ptr, int len);
