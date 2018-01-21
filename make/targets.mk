@@ -1,4 +1,4 @@
-OFFICIAL_TARGETS  = FISHDRONE_ESC
+OFFICIAL_TARGETS  = FISHDRONE
 
 VALID_TARGETS   = $(dir $(wildcard $(ROOT)/src/main/target/*/target.mk))
 VALID_TARGETS  := $(subst /,, $(subst ./src/main/target/,, $(VALID_TARGETS)))

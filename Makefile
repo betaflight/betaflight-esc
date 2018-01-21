@@ -17,7 +17,7 @@
 PROJECTNAME  := BFESC
 
 # The target to build, see VALID_TARGETS below
-TARGET    ?= FISHDRONE_ESC
+TARGET    ?= FISHDRONE
 
 # Compile-time options
 OPTIONS   ?=
