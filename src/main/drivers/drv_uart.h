@@ -41,4 +41,7 @@ void serialWrite(char ch);
 void serialPrint(const char  *str);
 bool serialAvailable(void);
 char serialRead(void);
+
+#ifdef DEBUG
 int _write (int fd, char *ptr, int len);
+#endif
