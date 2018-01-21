@@ -3,6 +3,7 @@
 #include "stm32f0xx_ll_dma.h"
 #include "stm32f0xx_ll_gpio.h"
 
+#ifdef DEBUG
 int _write (int fd, char *ptr, int len)
 {
     UNUSED(fd);
@@ -11,6 +12,7 @@ int _write (int fd, char *ptr, int len)
     }
     return len;
 }
+#endif
 
 static serialPort_t serialPort;
 
