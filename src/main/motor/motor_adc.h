@@ -6,10 +6,10 @@ struct motor_adc_sample
 {
     uint64_t timestamp;
 
-    int phase_values[3];
-    int input_voltage;
-    int input_current;
-    int input_temperature;
+    uint32_t phase_values[3];
+    uint32_t input_voltage;
+    uint32_t input_current;
+    uint32_t input_temperature;
 };
 
 void motor_adc_init(void);

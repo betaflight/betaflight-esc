@@ -1,5 +1,7 @@
 #include "include.h"
 
+#include "drv_led.h"
+
 void led_init(void)
 {
     LL_AHB1_GRP1_EnableClock(LED0_PERIPHERAL | LED1_PERIPHERAL | LED2_PERIPHERAL);
