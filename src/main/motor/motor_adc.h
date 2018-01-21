@@ -13,7 +13,6 @@ struct motor_adc_sample
 };
 
 void motor_adc_init(void);
-void update_voltage_current_temperate(void);
 
 float motor_adc_get_voltage(void);
 float motor_adc_get_current(void);

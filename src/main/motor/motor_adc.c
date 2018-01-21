@@ -1,4 +1,5 @@
 #include "include.h"
+#include "stm32f0xx_ll_dma.h"
 
 #define LOWPASS(xold, xnew, alpha_rcpr) \
     (((xold) * (alpha_rcpr) + (xnew) + (((alpha_rcpr) + 1) / 2)) / ((alpha_rcpr) + 1))
@@ -7,7 +8,7 @@ volatile uint16_t adcValues[6];
 
 static struct motor_adc_sample _sample;
 
-void update_voltage_current_temperate(void)
+void updateAdcValues(void)
 {
     static const int ALPHA_RCPR = 7; // A power of two minus one (1, 3, 7)
     _sample.input_current = LOWPASS(_sample.input_current, adcValues[0], ALPHA_RCPR);
@@ -19,6 +20,13 @@ void update_voltage_current_temperate(void)
     _sample.phase_values[2] = LOWPASS(_sample.phase_values[2], adcValues[5], ALPHA_RCPR);
 
     // printf("A:%d,B:%d,C:%d\n", _sample.phase_values[0], _sample.phase_values[1], _sample.phase_values[2]);
+}
+
+void DMA1_Channel1_IRQHandler(void){
+    if (LL_DMA_IsActiveFlag_TC1(DMA1)) {
+        LL_DMA_ClearFlag_TC1(DMA1);
+        updateAdcValues();
+    }
 }
 
 void motor_adc_init(void)
@@ -48,6 +56,7 @@ void motor_adc_init(void)
     dmaInit.Mode = LL_DMA_MODE_CIRCULAR;
     dmaInit.Priority = LL_DMA_PRIORITY_HIGH;
     LL_DMA_Init(DMA1, LL_DMA_CHANNEL_1, &dmaInit);
+    LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_1);
     LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_1);
 
     LL_ADC_CommonDeInit(__LL_ADC_COMMON_INSTANCE(ADC1));
@@ -76,6 +85,9 @@ void motor_adc_init(void)
     adcRegInit.Overrun = LL_ADC_REG_OVR_DATA_OVERWRITTEN;
     LL_ADC_REG_Init(ADC1, &adcRegInit);
     
+    HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 1U, 0U);
+    HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+
     LL_ADC_REG_SetSequencerScanDirection(ADC1, LL_ADC_REG_SEQ_SCAN_DIR_FORWARD);
     LL_ADC_SetSamplingTimeCommonChannels(ADC1, LL_ADC_SAMPLINGTIME_55CYCLES_5);
 
