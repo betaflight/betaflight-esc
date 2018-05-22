@@ -1,0 +1,42 @@
+os:
+  - linux
+
+sudo: false
+
+dist: trusty
+
+addons:
+  apt:
+    packages:
+      - build-essential
+      - git
+      - libc6-i386
+      - time
+
+git:
+  depth: 5
+
+language: c
+
+install:
+  - make arm_sdk_install
+
+before_script:
+  - make arm_sdk_version
+
+script:
+  - make
+
+cache:
+  directories:
+  - downloads
+  - tools
+
+notifications:
+  slack: betaflightgroup:LQSj02nsBEdefcO5UQcLgB0U
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/0c20f7a1a7e311499a88
+    on_success: always  # options: [always|never|change] default: always
+    on_failure: always  # options: [always|never|change] default: always
+    on_start: always     # options: [always|never|change] default: always

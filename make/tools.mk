@@ -18,6 +18,11 @@ ARM_SDK_DIR ?= $(TOOLS_DIR)/gcc-arm-none-eabi-6-2017-q2-update
 # Checked below, Should match the output of $(shell arm-none-eabi-gcc -dumpversion)
 GCC_REQUIRED_VERSION ?= 6.3.1
 
+.PHONY: arm_sdk_version
+
+arm_sdk_version:
+	$(V1) $(ARM_SDK_PREFIX)gcc --version
+
 ## arm_sdk_install   : Install Arm SDK
 .PHONY: arm_sdk_install
 
