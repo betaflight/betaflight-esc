@@ -29,12 +29,12 @@ void updateAdcValues(void)
     
 #ifdef FILTERADC
     #define filterpowalpha 4    
-    _sample.input_temperature = LOWPASS(_sample.input_current, adcValues[0], 4);
-    _sample.phase_values[0] = LOWPASS(_sample.input_current, adcValues[1], 4);
-    _sample.input_voltage = LOWPASS(_sample.input_current, adcValues[2], 4);
-    _sample.phase_values[1] = LOWPASS(_sample.input_current, adcValues[3], 4);
-    _sample.phase_values[2] = LOWPASS(_sample.input_current, adcValues[4], 4);
-    _sample.input_current = LOWPASS(_sample.input_current, adcValues[5], 4);
+    _sample.input_temperature = LOWPASS(_sample.input_temperature, adcValues[0], filterpowalpha);
+    _sample.phase_values[0] = LOWPASS(_sample.phase_values[0], adcValues[1], filterpowalpha);
+    _sample.input_voltage = LOWPASS(_sample.input_voltage, adcValues[2], filterpowalpha);
+    _sample.phase_values[1] = LOWPASS(_sample.phase_values[1], adcValues[3], filterpowalpha);
+    _sample.phase_values[2] = LOWPASS(_sample.phase_values[2], adcValues[4], filterpowalpha);
+    _sample.input_current = LOWPASS(_sample.input_current, adcValues[5], filterpowalpha);
 #else    
     _sample.input_temperature = adcValues[0];
     _sample.phase_values[0] = adcValues[1];
