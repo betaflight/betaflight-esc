@@ -39,3 +39,37 @@
 #define C_FET_LO_GPIO   GPIOA
 #define C_FET_LO_PIN    LL_GPIO_PIN_7
 
+// Sequence number of ADC each particular channel (the order in which they are scanned)
+#define ADC_SEQ_TEMPERATURE       0
+#define ADC_SEQ_PHASE_A           1
+#define ADC_SEQ_VOLTAGE           2
+#define ADC_SEQ_PHASE_B           3
+#define ADC_SEQ_PHASE_C           4
+#define ADC_SEQ_CURRENT           5
+
+// ADC channel assignments
+#define ADC_CHAN_TEMPERATURE      LL_ADC_CHANNEL_TEMPSENSOR // CH16
+#define ADC_CHAN_PHASE_A          LL_ADC_CHANNEL_0
+#define ADC_CHAN_VOLTAGE          LL_ADC_CHANNEL_3
+#define ADC_CHAN_PHASE_B          LL_ADC_CHANNEL_4
+#define ADC_CHAN_PHASE_C          LL_ADC_CHANNEL_5
+#define ADC_CHAN_CURRENT          LL_ADC_CHANNEL_6
+
+#define TARGET_ADC_CHANNEL_MASK ( ADC_CHAN_PHASE_A | \
+                                  ADC_CHAN_PHASE_B | \
+                                  ADC_CHAN_PHASE_C | \
+                                  ADC_CHAN_TEMPERATURE | \
+                                  ADC_CHAN_VOLTAGE | \
+                                  ADC_CHAN_CURRENT )
+
+#define GPIO_PIN_PHASE_A          LL_GPIO_PIN_0
+#define GPIO_PIN_VOLTAGE          LL_GPIO_PIN_3
+#define GPIO_PIN_PHASE_B          LL_GPIO_PIN_4
+#define GPIO_PIN_PHASE_C          LL_GPIO_PIN_5
+#define GPIO_PIN_CURRENT          LL_GPIO_PIN_6
+
+#define TARGET_ADC_PIN_MASK     ( GPIO_PIN_PHASE_A | \
+                                  GPIO_PIN_PHASE_B | \
+                                  GPIO_PIN_PHASE_C | \
+                                  GPIO_PIN_VOLTAGE | \
+                                  GPIO_PIN_CURRENT )
