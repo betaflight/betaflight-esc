@@ -35,7 +35,8 @@ void updateAdcValues(void)
     _sample.phase_values[1] = LOWPASS(_sample.phase_values[1], adcValues[ADC_SEQ_PHASE_B], filterpowalpha);
     _sample.phase_values[2] = LOWPASS(_sample.phase_values[2], adcValues[ADC_SEQ_PHASE_C], filterpowalpha);
     _sample.input_current = LOWPASS(_sample.input_current, adcValues[ADC_SEQ_CURRENT], filterpowalpha);
-#else    
+#else
+    // RM 13.9: When sampling internal temperature, the adc sampling time must be > 2 * ts_temp (8 microseconds for F051x)
     _sample.input_temperature = adcValues[ADC_SEQ_TEMPERATURE];
     _sample.phase_values[0] = adcValues[ADC_SEQ_PHASE_A];
     _sample.input_voltage = adcValues[ADC_SEQ_VOLTAGE];
