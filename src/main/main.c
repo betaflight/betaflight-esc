@@ -37,7 +37,7 @@ struct Timer consoleTimer;
 
 void timer_led_callback(void)
 {
-    
+    LED0_TOGGLE();
 }
 
 
