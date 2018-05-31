@@ -1,18 +1,18 @@
 #pragma once
 
-// PB8 --- BLUE
+// PB4 --- BLUE
 #define LED0_GPIO       GPIOB
-#define LED0_PIN        LL_GPIO_PIN_8
+#define LED0_PIN        LL_GPIO_PIN_4
 #define LED0_PERIPHERAL LL_AHB1_GRP1_PERIPH_GPIOB
 
-// PB3 --- RED
+// PB5 --- RED
 #define LED1_GPIO       GPIOB
-#define LED1_PIN        LL_GPIO_PIN_3
+#define LED1_PIN        LL_GPIO_PIN_5 // This pin goes to a test point. The red led is apparently not connected on the board used to test.
 #define LED1_PERIPHERAL LL_AHB1_GRP1_PERIPH_GPIOB
 
-// PB5 --- GREEN
+// PB3 --- GREEN
 #define LED2_GPIO       GPIOB
-#define LED2_PIN        LL_GPIO_PIN_5
+#define LED2_PIN        LL_GPIO_PIN_3
 #define LED2_PERIPHERAL LL_AHB1_GRP1_PERIPH_GPIOB
 
 // PA10 --- Phase_A_HI
@@ -42,10 +42,10 @@
 // Sequence number of ADC each particular channel (the order in which they are scanned)
 #define ADC_SEQ_TEMPERATURE       0
 #define ADC_SEQ_PHASE_A           1
-#define ADC_SEQ_VOLTAGE           2
-#define ADC_SEQ_PHASE_B           3
-#define ADC_SEQ_PHASE_C           4
-#define ADC_SEQ_CURRENT           5
+#define ADC_SEQ_VOLTAGE           3
+#define ADC_SEQ_PHASE_B           4
+#define ADC_SEQ_PHASE_C           5
+#define ADC_SEQ_CURRENT           6
 
 // ADC channel assignments
 #define ADC_CHAN_TEMPERATURE      LL_ADC_CHANNEL_TEMPSENSOR // CH16
@@ -63,9 +63,9 @@
                                   ADC_CHAN_CURRENT )
 
 #define GPIO_PIN_PHASE_A          LL_GPIO_PIN_0
-#define GPIO_PIN_VOLTAGE          LL_GPIO_PIN_3
 #define GPIO_PIN_PHASE_B          LL_GPIO_PIN_4
 #define GPIO_PIN_PHASE_C          LL_GPIO_PIN_5
+#define GPIO_PIN_VOLTAGE          LL_GPIO_PIN_3
 #define GPIO_PIN_CURRENT          LL_GPIO_PIN_6
 
 #define TARGET_ADC_PIN_MASK     ( GPIO_PIN_PHASE_A | \

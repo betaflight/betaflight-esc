@@ -29,19 +29,20 @@ void updateAdcValues(void)
     
 #ifdef FILTERADC
     #define filterpowalpha 4    
-    _sample.input_temperature = LOWPASS(_sample.input_temperature, adcValues[0], filterpowalpha);
-    _sample.phase_values[0] = LOWPASS(_sample.phase_values[0], adcValues[1], filterpowalpha);
-    _sample.input_voltage = LOWPASS(_sample.input_voltage, adcValues[2], filterpowalpha);
-    _sample.phase_values[1] = LOWPASS(_sample.phase_values[1], adcValues[3], filterpowalpha);
-    _sample.phase_values[2] = LOWPASS(_sample.phase_values[2], adcValues[4], filterpowalpha);
-    _sample.input_current = LOWPASS(_sample.input_current, adcValues[5], filterpowalpha);
-#else    
-    _sample.input_temperature = adcValues[0];
-    _sample.phase_values[0] = adcValues[1];
-    _sample.input_voltage = adcValues[2];
-    _sample.phase_values[1] = adcValues[3];
-    _sample.phase_values[2] = adcValues[4];    
-    _sample.input_current = adcValues[5];
+    _sample.input_temperature = LOWPASS(_sample.input_temperature, adcValues[ADC_SEQ_TEMPERATURE], filterpowalpha);
+    _sample.phase_values[0] = LOWPASS(_sample.phase_values[0], adcValues[ADC_SEQ_PHASE_A], filterpowalpha);
+    _sample.input_voltage = LOWPASS(_sample.input_voltage, adcValues[ADC_SEQ_VOLTAGE], filterpowalpha);
+    _sample.phase_values[1] = LOWPASS(_sample.phase_values[1], adcValues[ADC_SEQ_PHASE_B], filterpowalpha);
+    _sample.phase_values[2] = LOWPASS(_sample.phase_values[2], adcValues[ADC_SEQ_PHASE_C], filterpowalpha);
+    _sample.input_current = LOWPASS(_sample.input_current, adcValues[ADC_SEQ_CURRENT], filterpowalpha);
+#else
+    // RM 13.9: When sampling internal temperature, the adc sampling time must be > 2 * ts_temp (8 microseconds for F051x)
+    _sample.input_temperature = adcValues[ADC_SEQ_TEMPERATURE];
+    _sample.phase_values[0] = adcValues[ADC_SEQ_PHASE_A];
+    _sample.input_voltage = adcValues[ADC_SEQ_VOLTAGE];
+    _sample.phase_values[1] = adcValues[ADC_SEQ_PHASE_B];
+    _sample.phase_values[2] = adcValues[ADC_SEQ_PHASE_C];
+    _sample.input_current = adcValues[ADC_SEQ_CURRENT];
 #endif
     // printf("A:%d,B:%d,C:%d\n", _sample.phase_values[0], _sample.phase_values[1], _sample.phase_values[2]);
 }
@@ -59,7 +60,7 @@ void motor_adc_init(void)
     LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_ADC1);
 
     LL_GPIO_InitTypeDef gpioInit;
-    gpioInit.Pin = LL_GPIO_PIN_0 | LL_GPIO_PIN_3 | LL_GPIO_PIN_4 | LL_GPIO_PIN_5 | LL_GPIO_PIN_6;
+    gpioInit.Pin = TARGET_ADC_PIN_MASK;
     gpioInit.Mode = LL_GPIO_MODE_ANALOG;
     gpioInit.Pull = LL_GPIO_PULL_NO ;
     LL_GPIO_Init(GPIOA, &gpioInit);
@@ -102,7 +103,7 @@ void motor_adc_init(void)
     LL_ADC_REG_Init(ADC1, &adcRegInit);
     
     LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(ADC1), LL_ADC_PATH_INTERNAL_TEMPSENSOR);
-    LL_ADC_REG_SetSequencerChannels(ADC1, LL_ADC_CHANNEL_0 | LL_ADC_CHANNEL_3 | LL_ADC_CHANNEL_4 | LL_ADC_CHANNEL_5 | LL_ADC_CHANNEL_6 | LL_ADC_CHANNEL_TEMPSENSOR);
+    LL_ADC_REG_SetSequencerChannels(ADC1, TARGET_ADC_CHANNEL_MASK);
     LL_ADC_REG_SetSequencerScanDirection(ADC1, LL_ADC_REG_SEQ_SCAN_DIR_FORWARD);
     LL_ADC_SetSamplingTimeCommonChannels(ADC1, LL_ADC_SAMPLINGTIME_55CYCLES_5);
 

@@ -5,6 +5,8 @@ VALID_TARGETS  := $(subst /,, $(subst ./src/main/target/,, $(VALID_TARGETS)))
 VALID_TARGETS  := $(VALID_TARGETS) $(ALT_TARGETS)
 VALID_TARGETS  := $(sort $(VALID_TARGETS))
 
+SUPPORTED_TARGETS = $(VALID_TARGETS)
+
 -include $(ROOT)/src/main/target/$(TARGET)/target.mk
 
 ifeq ($(filter $(TARGET),$(VALID_TARGETS)),)
